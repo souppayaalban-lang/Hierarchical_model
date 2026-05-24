@@ -10,18 +10,19 @@ var projectionViewMatrixLoc;  var projectionViewMatrix;
 var projectionMatrixLoc;      var projectionMatrix;
 var vertexCounts = {};
 
-var ID_Pelvis = 0;
-var ID_Torso = 1;
-var ID_Head = 2;
-var ID_LeftShoulder = 3;
-var ID_RightShoulder = 4;
-var ID_LeftElbow = 5;
-var ID_RightElbow = 6;
-var ID_LeftHip = 7;
-var ID_RightHip = 8;
-var ID_LeftKnee = 9;
-var ID_RightKnee = 10;
-var numNodes = 11;
+var ID_Root = 0;
+var ID_Spine = 1;
+var ID_Torso = 2;
+var ID_Head = 3;
+var ID_LeftShoulder = 4;
+var ID_RightShoulder = 5;
+var ID_LeftElbow = 6;
+var ID_RightElbow = 7;
+var ID_LeftHip = 8;
+var ID_RightHip = 9;
+var ID_LeftKnee = 10;
+var ID_RightKnee = 11;
+var numNodes = 12;
 
 var theta = new Array(23).fill(0);
 
@@ -39,9 +40,9 @@ var lower_arm_length = 0.6;
 var upper_leg_length = 0.8;
 var lower_leg_length = 0.6;
 
-var pelvis_height = 0.6;
+var spine_height = 0.6;
 var torso_radius = 0.10;
-var pelvis_radius = 0.10;
+var spine_radius = 0.10;
 var limb_radius = 0.08;
 
 var mesh_slices = 20;
@@ -50,9 +51,9 @@ var mesh_stacks = 20;
 var shoulder_offset_x = 0.05;
 var hip_offset_x = 0.05;
 
-var torso_offset_y = pelvis_height / 2;
-var pelvis_offset_y = 0;
-var shoulder_offset_y = torse_height;
+var torso_offset_y = spine_height - 2 * spine_radius;
+var spine_offset_y = 0;
+var shoulder_offset_y = torse_height - 2 * torso_radius;
 var head_offset_y = shoulder_offset_y + head_height / 2;
 
 
@@ -73,7 +74,7 @@ window.onload = function init(){
 
     var aspect = 1024/512;
     projectionMatrix = ortho(-aspect*2, aspect*2, -2, 2, -10, 10);
-    var eye = vec3(2.0, 1.2, 2.5);
+    var eye = vec3(3.0, 1.2, -3);
     var at = vec3(0, 0, 0);
     var up = vec3(0.0, 1.0, 0.0);
     modelViewMatrix = lookAt(eye, at, up);
@@ -103,7 +104,7 @@ window.onload = function init(){
 
     // Enabling Culling
     gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
+    gl.disable(gl.CULL_FACE);
 
     // Rendering
     render();
@@ -111,7 +112,7 @@ window.onload = function init(){
 
 function render(){
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    traverse(ID_Pelvis);
+    traverse(ID_Root);
     requestAnimationFrame(render);
 }
 
@@ -218,8 +219,8 @@ function drawMesh(key, matrix){
 }
 
 function drawCapsule(length, radius, centered){
-    var top = centered ? length / 2 : 0;
-    var bottom = centered ? -length / 2 : -length;
+    var top = centered ? length / 2 : radius;
+    var bottom = centered ? -length / 2 : -length + radius;
     var cylinderLength = length - 2 * radius;
 
     if(cylinderLength > 0.001){
@@ -240,8 +241,8 @@ function drawCapsule(length, radius, centered){
 
 function getPartSpec(name){
     switch(name){
-        case "pelvis":
-            return { length: pelvis_height, radius: pelvis_radius, centered: true};
+        case "spine":
+            return { length: spine_height, radius: spine_radius, centered: true};
         case "torso":
             return { length: torse_height, radius: torso_radius, centered: true };
         case "leftShoulder":
@@ -278,10 +279,16 @@ function createNode(transform, render, sibling, child){
     return node;
 }
 
-function pelvis(){ drawPart("pelvis"); }
+function root(){ }
+function spine(){
+    var saved = modelViewMatrix;
+    modelViewMatrix = mult(modelViewMatrix, translate(0, spine_height / 2 - spine_radius, 0));
+    drawPart("spine");
+    modelViewMatrix = saved;
+}
 function torso(){
     var saved = modelViewMatrix;
-    modelViewMatrix = mult(modelViewMatrix, translate(0, torse_height / 2, 0));
+    modelViewMatrix = mult(modelViewMatrix, translate(0, torse_height / 2 - torso_radius, 0));
     drawPart("torso");
     modelViewMatrix = saved;
 }
@@ -327,23 +334,26 @@ function initFigure(){
     }
 }
 
-theta = [0, 0, 0, 0, 0, 0, 0, -90, 0, 0, 0, 90, 0, 0, 0, -20, 0, 0, 0, 20, 0, 0, 0, 0]
+theta = [0, 0, 0, 0, 0, 0, 0, -90, 0, 0, -30, 90, 0, 0, -30, -20, 0, 0, 0, 20, 0, 0, 0, 0]
 
 // Initialization of the Hierarchical Model
 function initNodes(id){
     var m = mat4();
     switch(id){
-        case ID_Pelvis:
-            m = translate(0, pelvis_offset_y, 0);
+        case ID_Root:
+            figure[ID_Root] = createNode(m, root, null, ID_Spine);
+            break;
+        case ID_Spine:
+            m = translate(0, spine_offset_y, 0);
             m = mult(m, rotate(theta[0], 1, 0, 0));
             m = mult(m, rotate(theta[1], 0, 1, 0));
             m = mult(m, rotate(theta[2], 0, 0, 1));
-            figure[ID_Pelvis] = createNode(m, pelvis, null, ID_Torso);
+            figure[ID_Spine] = createNode(m, spine, ID_LeftHip, ID_Torso);
             break;
         case ID_Torso:
             m = translate(0, torso_offset_y, 0);
             m = mult(m, rotate(theta[3], 1, 0, 0));
-            figure[ID_Torso] = createNode(m, torso, ID_LeftHip, ID_Head);
+            figure[ID_Torso] = createNode(m, torso, null, ID_Head);
             break;
         case ID_Head:
             m = translate(0, head_offset_y, 0);
@@ -360,7 +370,7 @@ function initNodes(id){
             figure[ID_LeftShoulder] = createNode(m, leftShoulder, ID_RightShoulder, ID_LeftElbow);
             break;
         case ID_LeftElbow:
-            m = translate(0, -upper_arm_length, 0);
+            m = translate(0, -upper_arm_length + 2 * limb_radius, 0);
             m = mult(m, rotate(theta[10], 1, 0, 0));   // Flexion-Extention
             figure[ID_LeftElbow] = createNode(m, leftElbow, null, null);
             break;
@@ -372,31 +382,31 @@ function initNodes(id){
             figure[ID_RightShoulder] = createNode(m, rightShoulder, null, ID_RightElbow);
             break;
         case ID_RightElbow:
-            m = translate(0, -upper_arm_length, 0);
+            m = translate(0, -upper_arm_length + 2 * limb_radius, 0);
             m = mult(m, rotate(theta[14], 1, 0, 0));    // Flexion-Extention
             figure[ID_RightElbow] = createNode(m, rightElbow, null, null);
             break;
         case ID_LeftHip:
-            m = translate(-hip_offset_x, -pelvis_height / 2, 0);
+            m = translate(-hip_offset_x, 0, 0);
             m = mult(m, rotate(theta[15], 0, 0, 1));    // Elevation latérale du bras
             m = mult(m, rotate(theta[16], 1, 0, 0));    // Elevation du bras vers l'avant-arrière
             m = mult(m, rotate(theta[17], 0, 1, 0));    // Torsion
             figure[ID_LeftHip] = createNode(m, leftHip, ID_RightHip, ID_LeftKnee);
             break;
         case ID_LeftKnee:
-            m = translate(0, -upper_leg_length, 0);
+            m = translate(0, -upper_leg_length + 2 * limb_radius, 0);
             m = mult(m, rotate(theta[18], 1, 0, 0));    // Flexion-Extention
             figure[ID_LeftKnee] = createNode(m, leftKnee, null, null);
             break;
         case ID_RightHip:
-            m = translate(hip_offset_x, -pelvis_height / 2, 0);
+            m = translate(hip_offset_x, 0, 0);
             m = mult(m, rotate(theta[19], 0, 0, 1));    // Elevation latérale du bras
             m = mult(m, rotate(theta[20], 1, 0, 0));    // Elevation du bras vers l'avant-arrière
             m = mult(m, rotate(theta[21], 0, 1, 0));    // Torsion
             figure[ID_RightHip] = createNode(m, rightHip, null, ID_RightKnee);
             break;
         case ID_RightKnee:
-            m = translate(0, -upper_leg_length, 0);
+            m = translate(0, -upper_leg_length + 2 * limb_radius, 0);
             m = mult(m, rotate(theta[22], 1, 0, 0));    // Flexion-Extention
             figure[ID_RightKnee] = createNode(m, rightKnee, null, null);    
             break;                          
