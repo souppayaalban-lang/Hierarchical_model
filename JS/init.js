@@ -8,17 +8,37 @@ window.onload = function init(){
     vertices = initVertices(); // Faudra la faire la fonction
 
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    gl.clearColor(0.30, 0.30, 0.30, 1.0);
 
     var program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
 
     var aspect = 1024/512;
-    projectionMatrix = ortho(-aspect*2, aspect*2, -2, 2, -10, 10);
-    var eye = vec3(0.87, 0, 4.92);
-    var at = vec3(0, 0, 0);
-    var up = vec3(0.0, 1.0, 0.0);
+    projectionMatrix = ortho(-aspect*3, aspect*3, -3, 3, -10, 10);
+    eye = vec3(0, GROUND_Y + 2.0, 7.0);
+    at  = vec3(0, GROUND_Y + 1.2, 0);
+    up  = vec3(0, 1, 0);
+    orbitRadius = Math.sqrt(eye[0]*eye[0] + eye[1]*eye[1] + eye[2]*eye[2]);
     modelViewMatrix = lookAt(eye, at, up);
+
+    canvas.addEventListener("mousemove", function(e) {
+        if (!cameraFollowMouse) return;
+        var rect = canvas.getBoundingClientRect();
+        var mx = e.clientX - rect.left;
+        var my = e.clientY - rect.top;
+        var phi   = (mx / canvas.width)  * 2.0 * Math.PI;
+        var theta = 0.15 + (my / canvas.height) * (Math.PI - 0.3);
+        eye[0] = orbitRadius * Math.sin(theta) * Math.cos(phi);
+        eye[1] = orbitRadius * Math.cos(theta);
+        eye[2] = orbitRadius * Math.sin(theta) * Math.sin(phi);
+    });
+
+    window.addEventListener("keydown", function(e) {
+        if (e.code === "Space") {
+            e.preventDefault();
+            cameraFollowMouse = !cameraFollowMouse;
+        }
+    });
 
     // Locations
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
@@ -60,6 +80,7 @@ window.onload = function init(){
     }
 
     initFigures();
+    initBackground();
 
     // Enabling Culling
     gl.enable(gl.DEPTH_TEST);
@@ -71,6 +92,8 @@ window.onload = function init(){
 
 function render(){
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    modelViewMatrix = lookAt(eye, at, up);
+    drawBackground();
     var base = modelViewMatrix;
     for(var i=0; i<numFigures; i++){
         var offset = root_offsets[i] || [0.0, 0.0, 0.0];
@@ -101,6 +124,77 @@ function initBuffer(){
         }
         vertexCounts[key] = data.length;
     }
+}
+
+var bgGroundBuffer, bgGroundCount;
+var bgGridBuffer,   bgGridCount;
+var bgAxisBuffer,   bgAxisCount;
+
+function initBackground() {
+    // 3D Ground: horizontal XZ plane at y=0
+    var gy = 0.0;
+    var gs = 24.0;
+    var groundVerts = [
+        vec3(-gs, gy, -gs), vec3( gs, gy, -gs), vec3( gs, gy,  gs),
+        vec3(-gs, gy, -gs), vec3( gs, gy,  gs), vec3(-gs, gy,  gs),
+    ];
+    bgGroundCount  = groundVerts.length;
+    bgGroundBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bgGroundBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(groundVerts), gl.STATIC_DRAW);
+
+    // 2D Grid: screen-aligned (drawn with identity MV), dense, oversized to hide borders
+    var gridVerts = [];
+    var step = 0.25;
+    for (var x = -6.0; x <= 6.01; x += step) {
+        gridVerts.push(vec3(x, -4.0, 0.0));
+        gridVerts.push(vec3(x,  4.0, 0.0));
+    }
+    for (var y = -4.0; y <= 4.01; y += step) {
+        gridVerts.push(vec3(-6.0, y, 0.0));
+        gridVerts.push(vec3( 6.0, y, 0.0));
+    }
+    bgGridCount  = gridVerts.length;
+    bgGridBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bgGridBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(gridVerts), gl.STATIC_DRAW);
+
+    // 3D axis line on the ground: X axis through origin
+    var axisVerts = [
+        vec3(-12, GROUND_Y, 0), vec3(12, GROUND_Y, 0),  // X axis
+    ];
+    bgAxisCount  = axisVerts.length;
+    bgAxisBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bgAxisBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(axisVerts), gl.STATIC_DRAW);
+}
+
+function drawBackground() {
+    gl.uniform1f(useLightingLoc, 0.0);
+
+    // 2D Grid — identity modelView so it never moves with the camera
+    gl.depthMask(false);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(mat4()));
+    gl.uniform4fv(flatColorLoc, flatten(vec4(0.36, 0.36, 0.36, 1.0)));
+    gl.bindBuffer(gl.ARRAY_BUFFER, bgGridBuffer);
+    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.LINES, 0, bgGridCount);
+
+    // 3D Ground — follows the camera, writes depth so figures can occlude it
+    gl.depthMask(true);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+    gl.uniform4fv(flatColorLoc, flatten(vec4(0.16, 0.16, 0.16, 1.0)));
+    gl.bindBuffer(gl.ARRAY_BUFFER, bgGroundBuffer);
+    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, bgGroundCount);
+
+    // 3D axis lines — red, drawn on top of ground
+    gl.uniform4fv(flatColorLoc, flatten(vec4(1.0, 0.0, 0.0, 1.0)));
+    gl.bindBuffer(gl.ARRAY_BUFFER, bgAxisBuffer);
+    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.LINES, 0, bgAxisCount);
+
+    gl.uniform1f(useLightingLoc, 1.0);
 }
 
 // Function to set vertices array
