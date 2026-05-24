@@ -1,0 +1,113 @@
+var buffers = {};  // Ici on mettra la liste des buffers
+var vertices = {}; // Ici on mettra les tableaux de sommets pour chaque objet
+
+var gl;
+var canvas;
+var vPosition; var vNormal;
+
+var modelViewMatrixLoc;       var modelViewMatrix;
+var projectionMatrixLoc;      var projectionMatrix;
+var vertexCounts = {};
+
+var ID_Root = 0;
+var ID_Spine = 1;
+var ID_Torso = 2;
+var ID_Head = 3;
+var ID_LeftShoulder = 4;
+var ID_RightShoulder = 5;
+var ID_LeftElbow = 6;
+var ID_RightElbow = 7;
+var ID_LeftHip = 8;
+var ID_RightHip = 9;
+var ID_LeftKnee = 10;
+var ID_RightKnee = 11;
+var numNodes = 12;
+
+var numFigures = 2;
+var thetas = [];
+
+var stack = [];
+var figures = [];
+var root_offsets = [[-1.5, 0.0, 0.0], [1.5, 0.0, 0.0]];
+
+var torse_height = 0.6;
+var head_height = 0.5;
+var head_radius = head_height / 2;
+var upper_arm_length = 0.8;
+var lower_arm_length = 0.6;
+var upper_leg_length = 0.8;
+var lower_leg_length = 0.6;
+
+var spine_height = 0.6;
+var torso_radius = 0.10;
+var spine_radius = 0.10;
+var limb_radius = 0.08;
+
+var mesh_slices = 20;
+var mesh_stacks = 20;
+
+var shoulder_offset_x = 0.05;
+var hip_offset_x = 0.05;
+
+var torso_offset_y = spine_height - 2 * spine_radius;
+var spine_offset_y = 0;
+var shoulder_offset_y = torse_height - 2 * torso_radius;
+var head_offset_y = shoulder_offset_y + head_height / 2;
+
+function buildSphereSection(radius, slices, stacks, phiStart, phiEnd){
+    var verts = [];
+    var phiRange = phiEnd - phiStart;
+    for(var stack = 0; stack < stacks; stack++){
+        var phi0 = phiStart + phiRange * stack / stacks;
+        var phi1 = phiStart + phiRange * (stack + 1) / stacks;
+        var y0 = Math.cos(phi0);
+        var y1 = Math.cos(phi1);
+        var r0 = Math.sin(phi0);
+        var r1 = Math.sin(phi1);
+
+        for(var slice = 0; slice < slices; slice++){
+            var theta0 = 2 * Math.PI * slice / slices;
+            var theta1 = 2 * Math.PI * (slice + 1) / slices;
+
+            var x00 = r0 * Math.cos(theta0);
+            var z00 = r0 * Math.sin(theta0);
+            var x01 = r0 * Math.cos(theta1);
+            var z01 = r0 * Math.sin(theta1);
+            var x10 = r1 * Math.cos(theta0);
+            var z10 = r1 * Math.sin(theta0);
+            var x11 = r1 * Math.cos(theta1);
+            var z11 = r1 * Math.sin(theta1);
+
+            verts.push(vec3(radius * x00, radius * y0, radius * z00));
+            verts.push(vec3(radius * x11, radius * y1, radius * z11));
+            verts.push(vec3(radius * x10, radius * y1, radius * z10));
+
+            verts.push(vec3(radius * x00, radius * y0, radius * z00));
+            verts.push(vec3(radius * x01, radius * y0, radius * z01));
+            verts.push(vec3(radius * x11, radius * y1, radius * z11));
+        }
+    }
+    return verts;
+}
+function buildCylinder(radius, height, slices){
+    var verts = [];
+    var y0 = -height / 2;
+    var y1 = height / 2;
+    for(var slice = 0; slice < slices; slice++){
+        var theta0 = 2 * Math.PI * slice / slices;
+        var theta1 = 2 * Math.PI * (slice + 1) / slices;
+        var x0 = radius * Math.cos(theta0);
+        var z0 = radius * Math.sin(theta0);
+        var x1 = radius * Math.cos(theta1);
+        var z1 = radius * Math.sin(theta1);
+
+        verts.push(vec3(x0, y0, z0));
+        verts.push(vec3(x0, y1, z0));
+        verts.push(vec3(x1, y1, z1));
+
+        verts.push(vec3(x0, y0, z0));
+        verts.push(vec3(x1, y1, z1));
+        verts.push(vec3(x1, y0, z1));
+    }
+    return verts;
+}
