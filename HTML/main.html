@@ -17,7 +17,7 @@
             uniform mat4 projectionMatrix;
             uniform vec4 ambientProduct, diffuseProduct, specularProduct;
             uniform vec4 lightPosition;
-            uniform float shininess; 
+            uniform float shininess;
             uniform float useLighting;
             uniform vec4 flatColor;
 
@@ -34,16 +34,15 @@
                 vec4 NN = vec4(vNormal, 0);
 
                 vec3 N = normalize((modelViewMatrix*NN).xyz);
-                
+
                 vec4 ambient = ambientProduct;
-                
+
                 float d_val = max(dot(L,N), 0.0);
                 vec4 diffuse = d_val*diffuseProduct;
 
                 float s_val = pow(max(dot(N,H), 0.0), shininess);
                 vec4 specular = s_val*specularProduct;
 
-                // in case the light source is behind the surface
                 if( dot(L, N) < 0.0 ) {
                     specular = vec4(0.0, 0.0, 0.0, 1.0);
                 }
@@ -59,7 +58,7 @@
         <script id="fragment-shader" type="x-shader/x-fragment">
             precision mediump float;
             varying vec4 fColor;
-            
+
             void
             main()
             {
@@ -72,8 +71,90 @@
         <script type="text/javascript" src="../Common/MV.js"></script>
         <script type="text/javascript" src="../JS/Utils.js"></script>
         <script type="text/javascript" src="../JS/init.js"></script>
+        <script type="text/javascript" src="../JS/ui.js"></script>
+        <script type="text/javascript" src="../JS/coregame.js"></script>
     </head>
     <body>
-        <canvas id="gl-canvas" width="1024" height="512" draggable="false">Votre version HTML ne supporte pas de canvas</canvas>
+
+        <div id="logo">Game Logo</div>
+
+        <div id="game-wrapper">
+
+            <!-- Player 1 controls -->
+            <div id="p1-panel" class="player-panel">
+                <div class="player-label">Player 1</div>
+                <div class="keyboard-grid">
+                    <div id="p1-key-q" class="key-btn p1-key">
+                        <span class="key-letter">Q</span>
+                        <span class="key-action">Jab</span>
+                    </div>
+                    <div class="key-btn unused">
+                        <span class="key-letter">W</span>
+                    </div>
+                    <div id="p1-key-e" class="key-btn p1-key">
+                        <span class="key-letter">E</span>
+                        <span class="key-action">Hi-Kick</span>
+                    </div>
+                    <div id="p1-key-a" class="key-btn p1-key">
+                        <span class="key-letter">A</span>
+                        <span class="key-action">←</span>
+                    </div>
+                    <div class="key-btn unused">
+                        <span class="key-letter">S</span>
+                    </div>
+                    <div id="p1-key-d" class="key-btn p1-key">
+                        <span class="key-letter">D</span>
+                        <span class="key-action">→</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas + HUD -->
+            <div id="canvas-area">
+                <div id="hud-bar">
+                    <div id="p1-health-bar" class="health-bar">
+                        <div id="p1-health-fill" class="health-fill"></div>
+                    </div>
+                    <div id="timer-display">60</div>
+                    <div id="p2-health-bar" class="health-bar">
+                        <div id="p2-health-fill" class="health-fill"></div>
+                    </div>
+                </div>
+                <canvas id="gl-canvas" width="1024" height="512" draggable="false">
+                    Your browser does not support HTML5 canvas.
+                </canvas>
+            </div>
+
+            <!-- Player 2 controls -->
+            <div id="p2-panel" class="player-panel">
+                <div class="player-label">Player 2</div>
+                <div class="keyboard-grid">
+                    <div id="p2-key-u" class="key-btn p2-key">
+                        <span class="key-letter">U</span>
+                        <span class="key-action">Jab</span>
+                    </div>
+                    <div class="key-btn unused">
+                        <span class="key-letter">I</span>
+                    </div>
+                    <div id="p2-key-o" class="key-btn p2-key">
+                        <span class="key-letter">O</span>
+                        <span class="key-action">Hi-Kick</span>
+                    </div>
+                    <div id="p2-key-j" class="key-btn p2-key">
+                        <span class="key-letter">J</span>
+                        <span class="key-action">←</span>
+                    </div>
+                    <div class="key-btn unused">
+                        <span class="key-letter">K</span>
+                    </div>
+                    <div id="p2-key-l" class="key-btn p2-key">
+                        <span class="key-letter">L</span>
+                        <span class="key-action">→</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
     </body>
 </html>

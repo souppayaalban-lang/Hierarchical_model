@@ -5,10 +5,15 @@ var normals = {};  // Normales par objet, meme ordre que vertices
 
 var gl;
 var canvas;
-var vPosition; var vNormal;
+var vPosition;
+var vNormal;
 
-var modelViewMatrixLoc;       var modelViewMatrix;
-var projectionMatrixLoc;      var projectionMatrix;
+var modelViewMatrixLoc;
+var modelViewMatrix;
+
+var projectionMatrixLoc;
+var projectionMatrix;
+
 var vertexCounts = {};
 
 var ID_Root = 0;
@@ -30,7 +35,6 @@ var thetas = [];
 
 var stack = [];
 var figures = [];
-var root_offsets = [[-1.5, 0.0, 0.0]];
 
 var torse_height = 0.6;
 var head_height = 0.5;
@@ -44,6 +48,10 @@ var spine_height = 0.6;
 var torso_radius = 0.10;
 var spine_radius = 0.10;
 var limb_radius = 0.08;
+
+var GROUND_Y = 0.0;
+var LEG_HEIGHT = (upper_leg_length - 2*limb_radius + lower_leg_length - limb_radius) * Math.cos(20 * Math.PI / 180);
+var root_offsets = [[-1.5, GROUND_Y + LEG_HEIGHT, 0.0]];
 
 var mesh_slices = 20;
 var mesh_stacks = 20;
@@ -72,10 +80,17 @@ var materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
 var materialShininess = 200.0; var ShininessLoc;
 var useLightingLoc; var flatColorLoc;
 
-function buildSphereSection(radius, slices, stacks, phiStart, phiEnd){
+// Camera
+var eye = vec3(0.87, 0, 4.92);
+var at  = vec3(0, 0, 0);
+var up  = vec3(0, 1, 0);
+var orbitRadius      = 5.0;
+var cameraFollowMouse = false;
+
+function buildSphereSection(radius, slices, stacks, phiStart, phiEnd) {
     var verts = [];
     var phiRange = phiEnd - phiStart;
-    for(var stack = 0; stack < stacks; stack++){
+    for (var stack = 0; stack < stacks; stack++) {
         var phi0 = phiStart + phiRange * stack / stacks;
         var phi1 = phiStart + phiRange * (stack + 1) / stacks;
         var y0 = Math.cos(phi0);
@@ -83,7 +98,7 @@ function buildSphereSection(radius, slices, stacks, phiStart, phiEnd){
         var r0 = Math.sin(phi0);
         var r1 = Math.sin(phi1);
 
-        for(var slice = 0; slice < slices; slice++){
+        for (var slice = 0; slice < slices; slice++) {
             var theta0 = 2 * Math.PI * slice / slices;
             var theta1 = 2 * Math.PI * (slice + 1) / slices;
 
@@ -107,11 +122,11 @@ function buildSphereSection(radius, slices, stacks, phiStart, phiEnd){
     }
     return verts;
 }
-function buildCylinder(radius, height, slices){
+function buildCylinder(radius, height, slices) {
     var verts = [];
     var y0 = -height / 2;
     var y1 = height / 2;
-    for(var slice = 0; slice < slices; slice++){
+    for (var slice = 0; slice < slices; slice++) {
         var theta0 = 2 * Math.PI * slice / slices;
         var theta1 = 2 * Math.PI * (slice + 1) / slices;
         var x0 = radius * Math.cos(theta0);
@@ -130,18 +145,18 @@ function buildCylinder(radius, height, slices){
     return verts;
 }
 
-function buildSphereNormals(verts){
+function buildSphereNormals(verts) {
     var norms = [];
-    for(var i = 0; i < verts.length; i++){
+    for (var i = 0; i < verts.length; i++) {
         var v = verts[i];
         norms.push(normalize(vec3(v[0], v[1], v[2])));
     }
     return norms;
 }
 
-function buildCylinderNormals(verts){
+function buildCylinderNormals(verts) {
     var norms = [];
-    for(var i = 0; i < verts.length; i++){
+    for (var i = 0; i < verts.length; i++) {
         var v = verts[i];
         norms.push(normalize(vec3(v[0], 0.0, v[2])));
     }
