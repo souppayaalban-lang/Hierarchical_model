@@ -1,10 +1,10 @@
-window.onload = function init(){
+window.onload = function init() {
     canvas = document.getElementById("gl-canvas");
     gl = WebGLUtils.setupWebGL(canvas);
-    if(!gl){
+    if (!gl) {
         this.alert("WebGL is not avaiable");
     }
-    
+
     vertices = initVertices(); // Faudra la faire la fonction
 
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -13,27 +13,27 @@ window.onload = function init(){
     var program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
 
-    var aspect = 1024/512;
-    projectionMatrix = ortho(-aspect*3, aspect*3, -3, 3, -10, 10);
+    var aspect = 1024 / 512;
+    projectionMatrix = ortho(-aspect * 3, aspect * 3, -3, 3, -10, 10);
     eye = vec3(0, GROUND_Y + 2.0, 7.0);
-    at  = vec3(0, GROUND_Y + 1.2, 0);
-    up  = vec3(0, 1, 0);
-    orbitRadius = Math.sqrt(eye[0]*eye[0] + eye[1]*eye[1] + eye[2]*eye[2]);
+    at = vec3(0, GROUND_Y + 1.2, 0);
+    up = vec3(0, 1, 0);
+    orbitRadius = Math.sqrt(eye[0] * eye[0] + eye[1] * eye[1] + eye[2] * eye[2]);
     modelViewMatrix = lookAt(eye, at, up);
 
-    canvas.addEventListener("mousemove", function(e) {
+    canvas.addEventListener("mousemove", function (e) {
         if (!cameraFollowMouse) return;
         var rect = canvas.getBoundingClientRect();
         var mx = e.clientX - rect.left;
         var my = e.clientY - rect.top;
-        var phi   = (mx / canvas.width)  * 2.0 * Math.PI;
+        var phi = (mx / canvas.width) * 2.0 * Math.PI;
         var theta = 0.15 + (my / canvas.height) * (Math.PI - 0.3);
         eye[0] = orbitRadius * Math.sin(theta) * Math.cos(phi);
         eye[1] = orbitRadius * Math.cos(theta);
         eye[2] = orbitRadius * Math.sin(theta) * Math.sin(phi);
     });
 
-    window.addEventListener("keydown", function(e) {
+    window.addEventListener("keydown", function (e) {
         if (e.code === "Space") {
             e.preventDefault();
             cameraFollowMouse = !cameraFollowMouse;
@@ -75,11 +75,12 @@ window.onload = function init(){
     // Enabling Attributes
     gl.enableVertexAttribArray(vPosition);
 
-    if(vNormal >= 0){
+    if (vNormal >= 0) {
         gl.enableVertexAttribArray(vNormal);
     }
 
     initFigures();
+    initAnimPlayer();
     initBackground();
 
     // Enabling Culling
@@ -87,15 +88,23 @@ window.onload = function init(){
     gl.disable(gl.CULL_FACE);
 
     // Rendering
-    render();
+    requestAnimationFrame(render);
 }
 
-function render(){
+var _lastRenderTime = null;
+
+function render(now) {
+    var dt = 0;
+    if (_lastRenderTime !== null) dt = Math.min((now - _lastRenderTime) / 1000, 0.1);
+    _lastRenderTime = now;
+
+    updateAnimation(dt);
+
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     modelViewMatrix = lookAt(eye, at, up);
     drawBackground();
     var base = modelViewMatrix;
-    for(var i=0; i<numFigures; i++){
+    for (var i = 0; i < numFigures; i++) {
         var offset = root_offsets[i] || [0.0, 0.0, 0.0];
         modelViewMatrix = mult(base, translate(offset[0], offset[1], offset[2]));
         traverse(ID_Root, figures[i]);
@@ -105,7 +114,7 @@ function render(){
 }
 
 // Function to initialize all buffers once
-function initBuffer(){
+function initBuffer() {
     buffers = {};
     normalBuffers = {};
     vertexCounts = {};
@@ -117,7 +126,7 @@ function initBuffer(){
         gl.bindBuffer(gl.ARRAY_BUFFER, buffers[key]);
         gl.bufferData(gl.ARRAY_BUFFER, flatten(data), gl.STATIC_DRAW);
 
-        if(normals && normals[key]){
+        if (normals && normals[key]) {
             normalBuffers[key] = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffers[key]);
             gl.bufferData(gl.ARRAY_BUFFER, flatten(normals[key]), gl.STATIC_DRAW);
@@ -127,18 +136,18 @@ function initBuffer(){
 }
 
 var bgGroundBuffer, bgGroundCount;
-var bgGridBuffer,   bgGridCount;
-var bgAxisBuffer,   bgAxisCount;
+var bgGridBuffer, bgGridCount;
+var bgAxisBuffer, bgAxisCount;
 
 function initBackground() {
     // 3D Ground: horizontal XZ plane at y=0
     var gy = 0.0;
     var gs = 24.0;
     var groundVerts = [
-        vec3(-gs, gy, -gs), vec3( gs, gy, -gs), vec3( gs, gy,  gs),
-        vec3(-gs, gy, -gs), vec3( gs, gy,  gs), vec3(-gs, gy,  gs),
+        vec3(-gs, gy, -gs), vec3(gs, gy, -gs), vec3(gs, gy, gs),
+        vec3(-gs, gy, -gs), vec3(gs, gy, gs), vec3(-gs, gy, gs),
     ];
-    bgGroundCount  = groundVerts.length;
+    bgGroundCount = groundVerts.length;
     bgGroundBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bgGroundBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(groundVerts), gl.STATIC_DRAW);
@@ -148,13 +157,13 @@ function initBackground() {
     var step = 0.25;
     for (var x = -6.0; x <= 6.01; x += step) {
         gridVerts.push(vec3(x, -4.0, 0.0));
-        gridVerts.push(vec3(x,  4.0, 0.0));
+        gridVerts.push(vec3(x, 4.0, 0.0));
     }
     for (var y = -4.0; y <= 4.01; y += step) {
         gridVerts.push(vec3(-6.0, y, 0.0));
-        gridVerts.push(vec3( 6.0, y, 0.0));
+        gridVerts.push(vec3(6.0, y, 0.0));
     }
-    bgGridCount  = gridVerts.length;
+    bgGridCount = gridVerts.length;
     bgGridBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bgGridBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(gridVerts), gl.STATIC_DRAW);
@@ -163,7 +172,7 @@ function initBackground() {
     var axisVerts = [
         vec3(-12, GROUND_Y, 0), vec3(12, GROUND_Y, 0),  // X axis
     ];
-    bgAxisCount  = axisVerts.length;
+    bgAxisCount = axisVerts.length;
     bgAxisBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bgAxisBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(axisVerts), gl.STATIC_DRAW);
@@ -198,7 +207,7 @@ function drawBackground() {
 }
 
 // Function to set vertices array
-function initVertices(){
+function initVertices() {
     var data = {};
     var normalData = {};
     data["sphere"] = buildSphereSection(1, mesh_slices, mesh_stacks, 0, Math.PI);
@@ -213,23 +222,23 @@ function initVertices(){
     return data;
 }
 
-function drawMesh(key, matrix){
+function drawMesh(key, matrix) {
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(matrix));
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers[key]);
     gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
-    if(vNormal >= 0 && normalBuffers[key]){
+    if (vNormal >= 0 && normalBuffers[key]) {
         gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffers[key]);
         gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
     }
     gl.drawArrays(gl.TRIANGLES, 0, vertexCounts[key]);
 }
 
-function drawCapsule(length, radius, centered){
+function drawCapsule(length, radius, centered) {
     var top = centered ? length / 2 : radius;
     var bottom = centered ? -length / 2 : -length + radius;
     var cylinderLength = length - 2 * radius;
 
-    if(cylinderLength > 0.001){
+    if (cylinderLength > 0.001) {
         var center = (top + bottom) / 2;
         var m = mult(modelViewMatrix, translate(0, center, 0));
         m = mult(m, scalem(radius, cylinderLength, radius));
@@ -245,8 +254,8 @@ function drawCapsule(length, radius, centered){
     drawMesh("hemiDown", mBottom);
 }
 
-function drawPart(name){
-    switch(name){
+function drawPart(name) {
+    switch (name) {
         case "spine":
             drawCapsule(spine_height, spine_radius, true);
             return;
@@ -273,43 +282,44 @@ function drawPart(name){
 }
 
 // Create a node
-function createNode(transform, render, sibling, child){
+function createNode(transform, render, sibling, child) {
     var node = {
-        transform : transform,  // 4x4 Homogenous coordinates Matrix
-        render : render,        // Which render function we want to use
-        sibling : sibling,      // Store right sibling of the node
-        child : child};         // Store the leftmost child
+        transform: transform,  // 4x4 Homogenous coordinates Matrix
+        render: render,        // Which render function we want to use
+        sibling: sibling,      // Store right sibling of the node
+        child: child
+    };         // Store the leftmost child
     return node;
 }
 
-function root(){ }
-function spine(){
+function root() { }
+function spine() {
     var saved = modelViewMatrix;
     modelViewMatrix = mult(modelViewMatrix, translate(0, spine_height / 2 - spine_radius, 0));
     drawPart("spine");
     modelViewMatrix = saved;
 }
-function torso(){
+function torso() {
     var saved = modelViewMatrix;
     modelViewMatrix = mult(modelViewMatrix, translate(0, torse_height / 2 - torso_radius, 0));
     drawPart("torso");
     modelViewMatrix = saved;
 }
-function head(){
+function head() {
     var m = mult(modelViewMatrix, scalem(head_radius, head_radius, head_radius));
     drawMesh("sphere", m);
 }
-function leftShoulder(){ drawPart("leftShoulder"); }
-function leftElbow(){ drawPart("leftElbow"); }
-function rightShoulder(){ drawPart("rightShoulder"); }
-function rightElbow(){ drawPart("rightElbow"); }
-function leftHip(){ drawPart("leftHip"); }
-function leftKnee(){ drawPart("leftKnee"); }
-function rightHip(){ drawPart("rightHip"); }
-function rightKnee(){ drawPart("rightKnee"); }
+function leftShoulder() { drawPart("leftShoulder"); }
+function leftElbow() { drawPart("leftElbow"); }
+function rightShoulder() { drawPart("rightShoulder"); }
+function rightElbow() { drawPart("rightElbow"); }
+function leftHip() { drawPart("leftHip"); }
+function leftKnee() { drawPart("leftKnee"); }
+function rightHip() { drawPart("rightHip"); }
+function rightKnee() { drawPart("rightKnee"); }
 
-function traverse(id, figure){
-    if(id == null){
+function traverse(id, figure) {
+    if (id == null) {
         return;
     }
     // Save the state of the recursivity
@@ -318,7 +328,7 @@ function traverse(id, figure){
     figure[id].render();
 
     // Traverse all childs
-    if(figure[id].child != null){
+    if (figure[id].child != null) {
         traverse(figure[id].child, figure);
     }
 
@@ -326,17 +336,17 @@ function traverse(id, figure){
     modelViewMatrix = stack.pop();
 
     // Traverse all siblings
-    if(figure[id].sibling != null){
+    if (figure[id].sibling != null) {
         traverse(figure[id].sibling, figure);
     }
 }
 
-function initFigures(){
+function initFigures() {
     figures = [];
     thetas = [];
-    for(var f = 0; f < numFigures; f++){
+    for (var f = 0; f < numFigures; f++) {
         figures[f] = [];
-        for(var i = 0; i < numNodes; i++){
+        for (var i = 0; i < numNodes; i++) {
             figures[f][i] = createNode(null, null, null, null);
         }
         thetas[f] = defaultTheta2.slice();
@@ -344,8 +354,8 @@ function initFigures(){
     }
 }
 
-function initFigure(figure, theta){
-    for(var i=0; i<numNodes; i++){
+function initFigure(figure, theta) {
+    for (var i = 0; i < numNodes; i++) {
         initNodes(i, figure, theta);
     }
 }
@@ -355,9 +365,9 @@ var defaultTheta2 = [0, 0, 0, 0, 90, 0, 0, 0, 0, 0, -20, -20, 0, -120, 20, 30, 0
 
 
 // Initialization of the Hierarchical Model
-function initNodes(id, figure, theta){
+function initNodes(id, figure, theta) {
     var m = mat4();
-    switch(id){
+    switch (id) {
         case ID_Root:
             m = mult(m, rotate(theta[0], 1, 0, 0));
             m = mult(m, rotate(theta[1], 0, 1, 0));
@@ -429,12 +439,19 @@ function initNodes(id, figure, theta){
         case ID_RightKnee:
             m = translate(0, -upper_leg_length + 2 * limb_radius, 0);
             m = mult(m, rotate(theta[25], 1, 0, 0));    // Flexion-Extention
-            figure[ID_RightKnee] = createNode(m, rightKnee, null, null);    
-            break;                          
+            figure[ID_RightKnee] = createNode(m, rightKnee, null, null);
+            break;
     }
 }
 
-// Change animation
-function updateAnimation(){
-
+// Tick all figures: advance state machine, compute pose, rebuild skeleton
+function updateAnimation(dt) {
+    processInput(dt);  // defined in Input.js
+    for (var f = 0; f < numFigures; f++) {
+        if (root_offsets[f]) root_offsets[f][0] = figurePositions[f];
+        advanceAnimState(f, dt);
+        var pose = getCurrentPose(f);
+        if (f === 1) pose = mirrorPose(pose);
+        initFigure(figures[f], pose);
+    }
 }
