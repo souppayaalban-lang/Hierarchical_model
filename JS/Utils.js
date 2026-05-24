@@ -1,5 +1,7 @@
 var buffers = {};  // Ici on mettra la liste des buffers
+var normalBuffers = {}; // Buffers pour les normales
 var vertices = {}; // Ici on mettra les tableaux de sommets pour chaque objet
+var normals = {};  // Normales par objet, meme ordre que vertices
 
 var gl;
 var canvas;
@@ -23,18 +25,18 @@ var ID_LeftKnee = 10;
 var ID_RightKnee = 11;
 var numNodes = 12;
 
-var numFigures = 2;
+var numFigures = 1;
 var thetas = [];
 
 var stack = [];
 var figures = [];
-var root_offsets = [[-1.5, 0.0, 0.0], [1.5, 0.0, 0.0]];
+var root_offsets = [[-1.5, 0.0, 0.0]];
 
 var torse_height = 0.6;
 var head_height = 0.5;
 var head_radius = head_height / 2;
-var upper_arm_length = 0.8;
-var lower_arm_length = 0.6;
+var upper_arm_length = 0.6;
+var lower_arm_length = 0.8;
 var upper_leg_length = 0.8;
 var lower_leg_length = 0.6;
 
@@ -53,6 +55,22 @@ var torso_offset_y = spine_height - 2 * spine_radius;
 var spine_offset_y = 0;
 var shoulder_offset_y = torse_height - 2 * torso_radius;
 var head_offset_y = shoulder_offset_y + head_height / 2;
+
+// Directional sun light in world space (points toward the letters)
+var lightPosition = vec4(-2.5, 2.5, 4.0, 0.0); var lightPositionLoc;
+// Light color from the non seen side
+var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0); var AmbientProductLoc; var AmbientProduct;
+// Light color on the seen face (Color diffusion)
+var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0); var DiffuseProductLoc; var DiffuseProduct;
+// Light color of the fixed point illuminated by the light (White reflection)
+var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0); var SpecularProductLoc; var SpecularProduct;
+
+// Reflectivity coefficient
+var materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
+var materialDiffuse = vec4(0.1, 0.1, 1.0, 1.0);
+var materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
+var materialShininess = 200.0; var ShininessLoc;
+var useLightingLoc; var flatColorLoc;
 
 function buildSphereSection(radius, slices, stacks, phiStart, phiEnd){
     var verts = [];
@@ -110,4 +128,22 @@ function buildCylinder(radius, height, slices){
         verts.push(vec3(x1, y0, z1));
     }
     return verts;
+}
+
+function buildSphereNormals(verts){
+    var norms = [];
+    for(var i = 0; i < verts.length; i++){
+        var v = verts[i];
+        norms.push(normalize(vec3(v[0], v[1], v[2])));
+    }
+    return norms;
+}
+
+function buildCylinderNormals(verts){
+    var norms = [];
+    for(var i = 0; i < verts.length; i++){
+        var v = verts[i];
+        norms.push(normalize(vec3(v[0], 0.0, v[2])));
+    }
+    return norms;
 }

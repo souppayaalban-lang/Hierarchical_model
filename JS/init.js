@@ -15,7 +15,7 @@ window.onload = function init(){
 
     var aspect = 1024/512;
     projectionMatrix = ortho(-aspect*2, aspect*2, -2, 2, -10, 10);
-    var eye = vec3(0, 0, 0);
+    var eye = vec3(0.87, 0, 4.92);
     var at = vec3(0, 0, 0);
     var up = vec3(0.0, 1.0, 0.0);
     modelViewMatrix = lookAt(eye, at, up);
@@ -25,6 +25,26 @@ window.onload = function init(){
     projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+
+    lightPositionLoc = gl.getUniformLocation(program, "lightPosition");
+    AmbientProductLoc = gl.getUniformLocation(program, "ambientProduct");
+    DiffuseProductLoc = gl.getUniformLocation(program, "diffuseProduct");
+    SpecularProductLoc = gl.getUniformLocation(program, "specularProduct");
+    ShininessLoc = gl.getUniformLocation(program, "shininess");
+    useLightingLoc = gl.getUniformLocation(program, "useLighting");
+    flatColorLoc = gl.getUniformLocation(program, "flatColor");
+
+    AmbientProduct = mult(lightAmbient, materialAmbient);
+    DiffuseProduct = mult(lightDiffuse, materialDiffuse);
+    SpecularProduct = mult(lightSpecular, materialSpecular);
+
+    gl.uniform4fv(lightPositionLoc, flatten(lightPosition));
+    gl.uniform4fv(AmbientProductLoc, flatten(AmbientProduct));
+    gl.uniform4fv(DiffuseProductLoc, flatten(DiffuseProduct));
+    gl.uniform4fv(SpecularProductLoc, flatten(SpecularProduct));
+    gl.uniform1f(ShininessLoc, materialShininess);
+    gl.uniform1f(useLightingLoc, 1.0);
+    gl.uniform4fv(flatColorLoc, flatten(materialDiffuse));
     // Attribute Location
     vPosition = gl.getAttribLocation(program, "vPosition");
     vNormal = gl.getAttribLocation(program, "vNormal");
@@ -33,11 +53,9 @@ window.onload = function init(){
     initBuffer();
 
     // Enabling Attributes
-    gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
     if(vNormal >= 0){
-        gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(vNormal);
     }
 
@@ -66,6 +84,7 @@ function render(){
 // Function to initialize all buffers once
 function initBuffer(){
     buffers = {};
+    normalBuffers = {};
     vertexCounts = {};
     var keys = Object.keys(vertices);
     for (var i = 0; i < keys.length; i++) {
@@ -74,6 +93,12 @@ function initBuffer(){
         buffers[key] = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, buffers[key]);
         gl.bufferData(gl.ARRAY_BUFFER, flatten(data), gl.STATIC_DRAW);
+
+        if(normals && normals[key]){
+            normalBuffers[key] = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffers[key]);
+            gl.bufferData(gl.ARRAY_BUFFER, flatten(normals[key]), gl.STATIC_DRAW);
+        }
         vertexCounts[key] = data.length;
     }
 }
@@ -81,10 +106,16 @@ function initBuffer(){
 // Function to set vertices array
 function initVertices(){
     var data = {};
+    var normalData = {};
     data["sphere"] = buildSphereSection(1, mesh_slices, mesh_stacks, 0, Math.PI);
+    normalData["sphere"] = buildSphereNormals(data["sphere"]);
     data["hemiUp"] = buildSphereSection(1, mesh_slices, mesh_stacks, 0, Math.PI / 2);
+    normalData["hemiUp"] = buildSphereNormals(data["hemiUp"]);
     data["hemiDown"] = buildSphereSection(1, mesh_slices, mesh_stacks, Math.PI / 2, Math.PI);
+    normalData["hemiDown"] = buildSphereNormals(data["hemiDown"]);
     data["cylinder"] = buildCylinder(1, 1, mesh_slices);
+    normalData["cylinder"] = buildCylinderNormals(data["cylinder"]);
+    normals = normalData;
     return data;
 }
 
@@ -92,6 +123,10 @@ function drawMesh(key, matrix){
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(matrix));
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers[key]);
     gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+    if(vNormal >= 0 && normalBuffers[key]){
+        gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffers[key]);
+        gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+    }
     gl.drawArrays(gl.TRIANGLES, 0, vertexCounts[key]);
 }
 
@@ -210,7 +245,7 @@ function initFigures(){
         for(var i = 0; i < numNodes; i++){
             figures[f][i] = createNode(null, null, null, null);
         }
-        thetas[f] = defaultTheta.slice();
+        thetas[f] = defaultTheta2.slice();
         initFigure(figures[f], thetas[f]);
     }
 }
@@ -221,7 +256,9 @@ function initFigure(figure, theta){
     }
 }
 
-var defaultTheta = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -45, 0, 0, 0, 45, 0, 0, 0, -20, 0, 0, 0, 20, 0, 0, 0];
+var defaultTheta = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -20, 0, 0, 0, 20, 0, 0, 0, -10, 0, 0, 0, 10, 0, 0, 0];
+var defaultTheta2 = [0, 0, 0, 0, 90, 0, 0, 0, 0, 0, -20, -20, 0, -120, 20, 30, 0, -120, -10, 0, 0, 0, 10, 0, 0, 0];
+
 
 // Initialization of the Hierarchical Model
 function initNodes(id, figure, theta){
