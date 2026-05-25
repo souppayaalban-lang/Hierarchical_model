@@ -278,6 +278,10 @@ function drawPart(name) {
         case "rightKnee":
             drawCapsule(lower_leg_length, limb_radius, false);
             return;
+        case "leftFoot":
+        case "rightFoot":
+            drawCapsule(foot_length, foot_radius, true);
+            return;
     }
 }
 
@@ -315,8 +319,10 @@ function rightShoulder() { drawPart("rightShoulder"); }
 function rightElbow() { drawPart("rightElbow"); }
 function leftHip() { drawPart("leftHip"); }
 function leftKnee() { drawPart("leftKnee"); }
+function leftFoot() { drawPart("leftFoot"); }
 function rightHip() { drawPart("rightHip"); }
 function rightKnee() { drawPart("rightKnee"); }
+function rightFoot() { drawPart("rightFoot"); }
 
 function traverse(id, figure) {
     if (id == null) {
@@ -360,8 +366,8 @@ function initFigure(figure, theta) {
     }
 }
 
-var defaultTheta = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -20, 0, 0, 0, 20, 0, 0, 0, -10, 0, 0, 0, 10, 0, 0, 0];
-var defaultTheta2 = [0, 0, 0, 0, 90, 0, 0, 0, 0, 0, -20, -20, 0, -120, 20, 30, 0, -120, -10, 0, 0, 0, 10, 0, 0, 0];
+var defaultTheta = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -20, 0, 0, 0, 20, 0, 0, 0, -10, 0, 0, 0, 10, 0, 0, 0, 0, 0];
+var defaultTheta2 = [0, 0, 0, 0, 90, 0, 0, 0, 0, 0, -20, -20, 0, -120, 20, 30, 0, -120, -10, 0, 0, 0, 10, 0, 0, 0, 0, 0];
 
 
 // Initialization of the Hierarchical Model
@@ -377,8 +383,8 @@ function initNodes(id, figure, theta) {
         case ID_Spine:
             m = translate(0, spine_offset_y, 0);
             m = mult(m, rotate(theta[3], 1, 0, 0));
-            m = mult(m, rotate(theta[4], 0, 1, 0));
-            m = mult(m, rotate(theta[5], 0, 0, 1));
+            m = mult(m, rotate(theta[4], 0, 0, 1));
+            m = mult(m, rotate(theta[5], 0, 1, 0));
             figure[ID_Spine] = createNode(m, spine, ID_LeftHip, ID_Torso);
             break;
         case ID_Torso:
@@ -427,7 +433,7 @@ function initNodes(id, figure, theta) {
         case ID_LeftKnee:
             m = translate(0, -upper_leg_length + 2 * limb_radius, 0);
             m = mult(m, rotate(theta[21], 1, 0, 0));    // Flexion-Extention
-            figure[ID_LeftKnee] = createNode(m, leftKnee, null, null);
+            figure[ID_LeftKnee] = createNode(m, leftKnee, null, ID_LeftFoot);
             break;
         case ID_RightHip:
             m = translate(hip_offset_x, 0, 0);
@@ -439,7 +445,19 @@ function initNodes(id, figure, theta) {
         case ID_RightKnee:
             m = translate(0, -upper_leg_length + 2 * limb_radius, 0);
             m = mult(m, rotate(theta[25], 1, 0, 0));    // Flexion-Extention
-            figure[ID_RightKnee] = createNode(m, rightKnee, null, null);
+            figure[ID_RightKnee] = createNode(m, rightKnee, null, ID_RightFoot);
+            break;
+        case ID_LeftFoot:
+            m = translate(0, -lower_leg_length + 2 * limb_radius, 0);
+            m = mult(m, rotate(theta[26] + foot_base_angle, 1, 0, 0));
+            m = mult(m, translate(0, foot_length / 2, 0));
+            figure[ID_LeftFoot] = createNode(m, leftFoot, null, null);
+            break;
+        case ID_RightFoot:
+            m = translate(0, -lower_leg_length + 2 * limb_radius, 0);
+            m = mult(m, rotate(theta[27] + foot_base_angle, 1, 0, 0));
+            m = mult(m, translate(0, foot_length / 2, 0));
+            figure[ID_RightFoot] = createNode(m, rightFoot, null, null);
             break;
     }
 }

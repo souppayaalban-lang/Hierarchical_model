@@ -28,7 +28,9 @@ var ID_LeftHip = 8;
 var ID_RightHip = 9;
 var ID_LeftKnee = 10;
 var ID_RightKnee = 11;
-var numNodes = 12;
+var ID_LeftFoot = 12;
+var ID_RightFoot = 13;
+var numNodes = 14;
 
 var numFigures = 1;
 var thetas = [];
@@ -48,6 +50,9 @@ var spine_height = 0.6;
 var torso_radius = 0.10;
 var spine_radius = 0.10;
 var limb_radius = 0.08;
+var foot_length = 0.35;
+var foot_radius = limb_radius;
+var foot_base_angle = -90;
 
 var GROUND_Y = 0.0;
 var LEG_HEIGHT = (upper_leg_length - 2*limb_radius + lower_leg_length - limb_radius) * Math.cos(20 * Math.PI / 180);

@@ -1,63 +1,48 @@
 "use strict";
+function pose(p) {
+    function v3(a) { return a || [0, 0, 0]; }
+    function v1(a) { return a == null ? 0 : a; }
 
-// All poses authored for P1 (facing +X). P2 gets mirrorPose() applied automatically.
-//
-// DOF index map (28 values):
-//   [0-2]   Root       X/Y/Z
-//   [3-5]   Spine      X/Y/Z
-//   [6]     Torso      X
-//   [7-9]   Head       X/Y/Z
-//   [10-12] L Shoulder Z/X/Y
-//   [13]    L Elbow    X
-//   [14-16] R Shoulder Z/X/Y
-//   [17]    R Elbow    X
-//   [18-20] L Hip      Z/X/Y
-//   [21]    L Knee     X
-//   [22-24] R Hip      Z/X/Y
-//   [25]    R Knee     X
-//   [26]    L Foot     X  (counter-rotates to keep foot flat when hip X is nonzero)
-//   [27]    R Foot     X
+    var root = v3(p.root);
+    var spine = v3(p.spine);
+    var head = v3(p.head);
+    var lShoulder = v3(p.lShoulder);
+    var rShoulder = v3(p.rShoulder);
+    var lHip = v3(p.lHip);
+    var rHip = v3(p.rHip);
 
-// Idle : 4-frame looping bob at 6 fps.
-// Staggered stance: left leg forward (Hip X +15), right leg back (Hip X -10).
-// Only torso and arms carry the bob; legs and feet are constant across frames.
-// Foot DOFs counter the hip X tilt so feet stay roughly flat.
-//
-//              0  1  2  3   4  5   6   7  8  9   10   11  12    13  14  15  16    17   18   19  20  21   22   23  24  25   26   27
-var IDLE_F0 = [0, 0, 0, 0, 90, 0, 2, 1, 0, 0, -20, -21, 0, -122, 20, 31, 0, -122, -15, 15, 0, 0, 15, -10, 0, 0, -15, 10];
-var IDLE_F1 = [0, 0, 0, 0, 90, 0, -1, 0, 0, 0, -20, -19, 0, -118, 20, 29, 0, -118, -15, 15, 0, 0, 15, -10, 0, 0, -15, 10];
-var IDLE_F2 = [0, 0, 0, 0, 90, 0, -5, -2, 0, 0, -20, -16, 0, -113, 20, 26, 0, -113, -15, 15, 0, 0, 15, -10, 0, 0, -15, 10];
-var IDLE_F3 = [0, 0, 0, 0, 90, 0, -1, 0, 0, 0, -20, -19, 0, -118, 20, 29, 0, -118, -15, 15, 0, 0, 15, -10, 0, 0, -15, 10];
+    return [
+        root[0], root[1], root[2],
+        spine[0], spine[1], spine[2],
+        v1(p.torso),
+        head[0], head[1], head[2],
+        lShoulder[0], lShoulder[1], lShoulder[2],
+        v1(p.lElbow),
+        rShoulder[0], rShoulder[1], rShoulder[2],
+        v1(p.rElbow),
+        lHip[0], lHip[1], lHip[2],
+        v1(p.lKnee),
+        rHip[0], rHip[1], rHip[2],
+        v1(p.rKnee),
+        v1(p.lFoot),
+        v1(p.rFoot)
+    ];
+}
 
-// Walk forward : 4-frame stride cycle at 8 fps.
-// Hip X alternates ±25° for leg swing; shoulders counter-swing ±15° from idle position.
-// Foot DOFs are 0 : feet follow the leg freely while moving.
-//
-//              0  1  2  3   4  5   6  7  8  9   10   11  12    13  14  15  16    17   18   19  20  21   22   23  24  25  26  27
-var WALK_F0 = [0, 0, 0, 0, 90, 0, 8, 0, 0, 0, -20, -36, 0, -105, 20, 16, 0, -105, -10, -25, 0, 0, 10, 25, 0, -20, 0, 0]; // R fwd
-var WALK_F1 = [0, 0, 0, 0, 90, 0, 5, 0, 0, 0, -20, -21, 0, -120, 20, 31, 0, -120, -10, 0, 0, -15, 10, 0, 0, -20, 0, 0]; // centre
-var WALK_F2 = [0, 0, 0, 0, 90, 0, 8, 0, 0, 0, -20, -6, 0, -105, 20, 46, 0, -105, -10, 25, 0, -20, 10, -25, 0, 0, 0, 0]; // L fwd
-var WALK_F3 = [0, 0, 0, 0, 90, 0, 5, 0, 0, 0, -20, -21, 0, -120, 20, 31, 0, -120, -10, 0, 0, -20, 10, 0, 0, -15, 0, 0]; // centre
+// Penser à inverser la logique Droite = Gauche et inversement
 
+var IDLE_F0 = pose({
+    root: [0, 0, 0],
+    spine: [0, 0, 60], torso: 0, head: [0, 0, 0],
+    lShoulder: [-10, 0, 0], lElbow: -120,
+    rShoulder: [10, 0, 0], rElbow: -150,
+    lHip: [-15, 0 , -90], lKnee: 20,
+    rHip: [10, 0, -90], rKnee: 20,
+    lFoot:0, rFoot:0});
 function registerAnimations() {
     ANIMS["idle"] = {
-        frames: [IDLE_F0, IDLE_F1, IDLE_F2, IDLE_F3],
+        frames: [IDLE_F0],
         fps: 6,
-        loop: true,
-        priority: 0
-    };
-
-    ANIMS["walk_fwd"] = {
-        frames: [WALK_F0, WALK_F1, WALK_F2, WALK_F3],
-        fps: 8,
-        loop: true,
-        priority: 0
-    };
-
-    // walk_back reuses the walk_fwd frames for now; the position just moves backward.
-    ANIMS["walk_back"] = {
-        frames: [WALK_F0, WALK_F1, WALK_F2, WALK_F3],
-        fps: 8,
         loop: true,
         priority: 0
     };
