@@ -25,7 +25,8 @@ function pose(p) {
         rHip[0], rHip[1], rHip[2],
         v1(p.rKnee),
         v1(p.lFoot),
-        v1(p.rFoot)
+        v1(p.rFoot),
+        v1(p.pelvisY)    // index 28: vertical offset of the pelvis (FK height control)
     ];
 }
 
@@ -36,9 +37,11 @@ var IDLE_F0 = pose({
     spine: [0, 0, 60], torso: 0, head: [0, 0, 0],
     lShoulder: [-10, 0, 0], lElbow: -120,
     rShoulder: [10, 0, 0], rElbow: -150,
-    lHip: [-15, 0 , -90], lKnee: 20,
+    lHip: [-15, 0, -90], lKnee: 20,
     rHip: [10, 0, -90], rKnee: 20,
-    lFoot:0, rFoot:0});
+    lFoot: 0, rFoot: 0,
+    pelvisY: 0
+});
 function registerAnimations() {
     ANIMS["idle"] = {
         frames: [IDLE_F0],

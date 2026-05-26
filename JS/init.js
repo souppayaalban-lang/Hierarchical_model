@@ -366,15 +366,19 @@ function initFigure(figure, theta) {
     }
 }
 
-var defaultTheta = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -20, 0, 0, 0, 20, 0, 0, 0, -10, 0, 0, 0, 10, 0, 0, 0, 0, 0];
-var defaultTheta2 = [0, 0, 0, 0, 90, 0, 0, 0, 0, 0, -20, -20, 0, -120, 20, 30, 0, -120, -10, 0, 0, 0, 10, 0, 0, 0, 0, 0];
+var defaultTheta = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -20, 0, 0, 0, 20, 0, 0, 0, -10, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0];
+var defaultTheta2 = [0, 0, 0, 0, 90, 0, 0, 0, 0, 0, -20, -20, 0, -120, 20, 30, 0, -120, -10, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0];
 
 
 // Initialization of the Hierarchical Model
 function initNodes(id, figure, theta) {
     var m = mat4();
+    var pelvisY = theta[28] || 0;  // FK pelvis height offset
     switch (id) {
         case ID_Root:
+            if (pelvisY !== 0) {
+                m = mult(m, translate(0, pelvisY, 0));
+            }
             m = mult(m, rotate(theta[0], 1, 0, 0));
             m = mult(m, rotate(theta[1], 0, 1, 0));
             m = mult(m, rotate(theta[2], 0, 0, 1));
@@ -448,14 +452,44 @@ function initNodes(id, figure, theta) {
             figure[ID_RightKnee] = createNode(m, rightKnee, null, ID_RightFoot);
             break;
         case ID_LeftFoot:
+            // Cancel all parent rotations except hip Y torsion.
+            // Inverse = individual rotations in reverse order with negated angles:
+            // (R_root * R_hip * R_knee)^-1 = R_knee^-1 * R_hip^-1 * R_root^-1
             m = translate(0, -lower_leg_length + 2 * limb_radius, 0);
-            m = mult(m, rotate(theta[26] + foot_base_angle, 1, 0, 0));
+            // Undo Knee
+            m = mult(m, rotate(-theta[21], 1, 0, 0));
+            // Undo Hip (reverse order: Y, X, Z)
+            m = mult(m, rotate(-theta[20], 0, 1, 0));
+            m = mult(m, rotate(-theta[19], 1, 0, 0));
+            m = mult(m, rotate(-theta[18], 0, 0, 1));
+            // Undo Root (reverse order: Z, Y, X)
+            m = mult(m, rotate(-theta[2], 0, 0, 1));
+            m = mult(m, rotate(-theta[1], 0, 1, 0));
+            m = mult(m, rotate(-theta[0], 1, 0, 0));
+            // Re-apply hip Y torsion (the only inherited rotation we keep)
+            m = mult(m, rotate(theta[20], 0, 1, 0));
+            // Apply desired foot orientation
+            m = mult(m, rotate(foot_base_angle + theta[26], 1, 0, 0));
             m = mult(m, translate(0, foot_length / 2, 0));
             figure[ID_LeftFoot] = createNode(m, leftFoot, null, null);
             break;
         case ID_RightFoot:
+            // Cancel all parent rotations except hip Y torsion.
             m = translate(0, -lower_leg_length + 2 * limb_radius, 0);
-            m = mult(m, rotate(theta[27] + foot_base_angle, 1, 0, 0));
+            // Undo Knee
+            m = mult(m, rotate(-theta[25], 1, 0, 0));
+            // Undo Hip (reverse order: Y, X, Z)
+            m = mult(m, rotate(-theta[24], 0, 1, 0));
+            m = mult(m, rotate(-theta[23], 1, 0, 0));
+            m = mult(m, rotate(-theta[22], 0, 0, 1));
+            // Undo Root (reverse order: Z, Y, X)
+            m = mult(m, rotate(-theta[2], 0, 0, 1));
+            m = mult(m, rotate(-theta[1], 0, 1, 0));
+            m = mult(m, rotate(-theta[0], 1, 0, 0));
+            // Re-apply hip Y torsion (the only inherited rotation we keep)
+            m = mult(m, rotate(theta[24], 0, 1, 0));
+            // Apply desired foot orientation
+            m = mult(m, rotate(foot_base_angle + theta[27], 1, 0, 0));
             m = mult(m, translate(0, foot_length / 2, 0));
             figure[ID_RightFoot] = createNode(m, rightFoot, null, null);
             break;

@@ -50,12 +50,12 @@ var spine_height = 0.6;
 var torso_radius = 0.10;
 var spine_radius = 0.10;
 var limb_radius = 0.08;
-var foot_length = 0.35;
+var foot_length = 0.25;
 var foot_radius = limb_radius;
 var foot_base_angle = -90;
 
 var GROUND_Y = 0.0;
-var LEG_HEIGHT = (upper_leg_length - 2*limb_radius + lower_leg_length - limb_radius) * Math.cos(20 * Math.PI / 180);
+var LEG_HEIGHT = (upper_leg_length - 2 * limb_radius + lower_leg_length - limb_radius) * Math.cos(20 * Math.PI / 180);
 var root_offsets = [[-1.5, GROUND_Y + LEG_HEIGHT, 0.0]];
 
 var mesh_slices = 20;
@@ -87,9 +87,9 @@ var useLightingLoc; var flatColorLoc;
 
 // Camera
 var eye = vec3(0.87, 0, 4.92);
-var at  = vec3(0, 0, 0);
-var up  = vec3(0, 1, 0);
-var orbitRadius      = 5.0;
+var at = vec3(0, 0, 0);
+var up = vec3(0, 1, 0);
+var orbitRadius = 5.0;
 var cameraFollowMouse = false;
 
 function buildSphereSection(radius, slices, stacks, phiStart, phiEnd) {
