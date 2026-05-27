@@ -173,6 +173,12 @@ body {
     opacity: 0.3;
 }
 
+.key-btn.stunned {
+    opacity: 0.25;
+    filter: grayscale(1);
+    pointer-events: none;
+}
+
 /* ── Canvas area ── */
 #canvas-area {
     position: relative;
@@ -207,6 +213,14 @@ body {
 
 .p2-shadow {
     filter: drop-shadow(8px -5px 3px var(--p2-color)) drop-shadow(4px -3px 2px var(--p2-color));
+}
+
+.p1-shadow.hit {
+    filter: drop-shadow(-8px -5px 3px white) drop-shadow(-4px -3px 2px white);
+}
+
+.p2-shadow.hit {
+    filter: drop-shadow(8px -5px 3px white) drop-shadow(4px -3px 2px white);
 }
 
 /* Health bars */

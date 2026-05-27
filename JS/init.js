@@ -53,6 +53,8 @@ window.onload = function init() {
     ShininessLoc = gl.getUniformLocation(program, "shininess");
     useLightingLoc = gl.getUniformLocation(program, "useLighting");
     flatColorLoc = gl.getUniformLocation(program, "flatColor");
+    tintColorLoc = gl.getUniformLocation(program, "tintColor");
+    gl.uniform4fv(tintColorLoc, flatten(vec4(1.0, 1.0, 1.0, 1.0)));
 
     AmbientProduct = mult(lightAmbient, materialAmbient);
     DiffuseProduct = mult(lightDiffuse, materialDiffuse);
@@ -98,18 +100,29 @@ function render(now) {
     if (_lastRenderTime !== null) dt = Math.min((now - _lastRenderTime) / 1000, 0.1);
     _lastRenderTime = now;
 
-    updateAnimation(dt);
+    var frozen = hitFreeze;
+    if (!frozen) {
+        updateAnimation(dt);
 
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    modelViewMatrix = lookAt(eye, at, up);
-    drawBackground();
-    var base = modelViewMatrix;
-    for (var i = 0; i < numFigures; i++) {
-        var offset = root_offsets[i] || [0.0, 0.0, 0.0];
-        modelViewMatrix = mult(base, translate(offset[0], offset[1], offset[2]));
-        traverse(ID_Root, figures[i]);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        modelViewMatrix = lookAt(eye, at, up);
+        drawBackground();
+        var base = modelViewMatrix;
+        for (var i = 0; i < numFigures; i++) {
+            var offset = root_offsets[i] || [0.0, 0.0, 0.0];
+            modelViewMatrix = mult(base, translate(offset[0], offset[1], offset[2]));
+            gl.uniform4fv(tintColorLoc, flatten(PLAYER_DIFFUSE[i] || PLAYER_DIFFUSE[0]));
+            if (hitFlashTimers && hitFlashTimers[i]) {
+                gl.uniform1f(useLightingLoc, 0.0);
+                gl.uniform4fv(flatColorLoc, flatten(vec4(1.0, 1.0, 1.0, 1.0)));
+            }
+            traverse(ID_Root, figures[i]);
+            if (hitFlashTimers && hitFlashTimers[i]) {
+                gl.uniform1f(useLightingLoc, 1.0);
+            }
+        }
+        modelViewMatrix = base;
     }
-    modelViewMatrix = base;
     requestAnimationFrame(render);
 }
 
@@ -176,6 +189,7 @@ function initBackground() {
     bgAxisBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bgAxisBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(axisVerts), gl.STATIC_DRAW);
+
 }
 
 function drawBackground() {
@@ -479,7 +493,7 @@ function clampPoseToGround(f, pose) {
 }
 
 function updateAnimation(dt) {
-    processInput(dt);  // defined in Input.js
+    processInput(dt);
     for (var f = 0; f < numFigures; f++) {
         if (root_offsets[f]) root_offsets[f][0] = figurePositions[f];
         advanceAnimState(f, dt);

@@ -32,7 +32,7 @@ var ID_LeftFoot = 12;
 var ID_RightFoot = 13;
 var numNodes = 14;
 
-var numFigures = 1;
+var numFigures = 2;
 var thetas = [];
 
 var stack = [];
@@ -53,7 +53,10 @@ var limb_radius = 0.08;
 
 var GROUND_Y = 0.0;
 var LEG_HEIGHT = (upper_leg_length - 2 * limb_radius + lower_leg_length - limb_radius) * Math.cos(20 * Math.PI / 180);
-var root_offsets = [[-1.5, GROUND_Y + LEG_HEIGHT, 0.0]];
+var root_offsets = [
+    [-1.5, GROUND_Y + LEG_HEIGHT, 0.0],
+    [1.5, GROUND_Y + LEG_HEIGHT, 0.0]
+];
 
 var mesh_slices = 20;
 var mesh_stacks = 20;
@@ -75,12 +78,18 @@ var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0); var DiffuseProductLoc; var DiffuseP
 // Light color of the fixed point illuminated by the light (White reflection)
 var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0); var SpecularProductLoc; var SpecularProduct;
 
-// Reflectivity coefficient
-var materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
-var materialDiffuse = vec4(0.1, 0.1, 1.0, 1.0);
-var materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
+// white base so the shader tintColor (purple/orange per player) is the only color source.
+var materialAmbient = vec4(1.0, 1.0, 1.0, 1.0);
+var materialDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+var materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 var materialShininess = 200.0; var ShininessLoc;
-var useLightingLoc; var flatColorLoc;
+
+// per-player tint colors (match UI css variables --p1-color and --p2-color)
+var PLAYER_DIFFUSE = [
+    vec4(0.61, 0.35, 0.71, 1.0),  // P1 purple
+    vec4(0.88, 0.48, 0.22, 1.0)   // P2 orange
+];
+var useLightingLoc; var flatColorLoc; var tintColorLoc;
 
 // Camera
 var eye = vec3(0.87, 0, 4.92);
