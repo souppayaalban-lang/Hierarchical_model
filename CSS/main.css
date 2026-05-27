@@ -62,22 +62,21 @@ body {
 
 .keyboard-grid {
     display: grid;
-    grid-template-columns: repeat(3, 54px);
+    grid-template-columns: repeat(3, 72px);
     gap: 6px;
 }
 
 /* ── Key buttons ── */
 .key-btn {
-    width: 54px;
-    height: 54px;
+    position: relative;
+    width: 72px;
+    height: 72px;
     background: var(--btn-bg);
     border: 1px solid transparent;
     border-radius: 7px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
     cursor: default;
     user-select: none;
     transition: background 0.08s, box-shadow 0.08s;
@@ -90,12 +89,19 @@ body {
     line-height: 1;
 }
 
-.key-action {
-    font-size: 0.55rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-    line-height: 1;
+.key-icon {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    color: rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+    overflow: visible;
+}
+
+.key-icon.flip-h {
+    transform: scaleX(-1);
 }
 
 .p1-key {
@@ -107,15 +113,29 @@ body {
 }
 
 .p1-key.pressed {
-    background: var(--btn-bg-pressed-p1);
-    outline: 1px solid var(--p1-color);
-    outline-offset: 1px;
+    border-width: 2px;
+}
+
+.p1-key.pressed .key-letter,
+.p1-key.pressed .key-icon {
+    color: var(--p1-color);
+}
+
+.p1-key.pressed .key-letter {
+    transform: scale(1.1);
 }
 
 .p2-key.pressed {
-    background: var(--btn-bg-pressed-p2);
-    outline: 1px solid var(--p2-color);
-    outline-offset: 1px;
+    border-width: 2px;
+}
+
+.p2-key.pressed .key-letter,
+.p2-key.pressed .key-icon {
+    color: var(--p2-color);
+}
+
+.p2-key.pressed .key-letter {
+    transform: scale(1.1);
 }
 
 .key-btn.unused {
