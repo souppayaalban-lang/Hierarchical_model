@@ -452,9 +452,7 @@ function initNodes(id, figure, theta) {
             figure[ID_RightKnee] = createNode(m, rightKnee, null, ID_RightFoot);
             break;
         case ID_LeftFoot:
-            // Cancel all parent rotations except hip Y torsion.
-            // Inverse = individual rotations in reverse order with negated angles:
-            // (R_root * R_hip * R_knee)^-1 = R_knee^-1 * R_hip^-1 * R_root^-1
+            // Preserve the root orientation while still compensating the leg chain.
             m = translate(0, -lower_leg_length + 2 * limb_radius, 0);
             // Undo Knee
             m = mult(m, rotate(-theta[21], 1, 0, 0));
@@ -462,10 +460,6 @@ function initNodes(id, figure, theta) {
             m = mult(m, rotate(-theta[20], 0, 1, 0));
             m = mult(m, rotate(-theta[19], 1, 0, 0));
             m = mult(m, rotate(-theta[18], 0, 0, 1));
-            // Undo Root (reverse order: Z, Y, X)
-            m = mult(m, rotate(-theta[2], 0, 0, 1));
-            m = mult(m, rotate(-theta[1], 0, 1, 0));
-            m = mult(m, rotate(-theta[0], 1, 0, 0));
             // Re-apply hip Y torsion (the only inherited rotation we keep)
             m = mult(m, rotate(theta[20], 0, 1, 0));
             // Apply desired foot orientation
@@ -474,7 +468,7 @@ function initNodes(id, figure, theta) {
             figure[ID_LeftFoot] = createNode(m, leftFoot, null, null);
             break;
         case ID_RightFoot:
-            // Cancel all parent rotations except hip Y torsion.
+            // Preserve the root orientation while still compensating the leg chain.
             m = translate(0, -lower_leg_length + 2 * limb_radius, 0);
             // Undo Knee
             m = mult(m, rotate(-theta[25], 1, 0, 0));
@@ -482,10 +476,6 @@ function initNodes(id, figure, theta) {
             m = mult(m, rotate(-theta[24], 0, 1, 0));
             m = mult(m, rotate(-theta[23], 1, 0, 0));
             m = mult(m, rotate(-theta[22], 0, 0, 1));
-            // Undo Root (reverse order: Z, Y, X)
-            m = mult(m, rotate(-theta[2], 0, 0, 1));
-            m = mult(m, rotate(-theta[1], 0, 1, 0));
-            m = mult(m, rotate(-theta[0], 1, 0, 0));
             // Re-apply hip Y torsion (the only inherited rotation we keep)
             m = mult(m, rotate(theta[24], 0, 1, 0));
             // Apply desired foot orientation
@@ -497,6 +487,21 @@ function initNodes(id, figure, theta) {
 }
 
 // Tick all figures: advance state machine, compute pose, rebuild skeleton
+function clampPoseToGround(f, pose) {
+    if (!pose) return pose;
+
+    var rootOffset = root_offsets[f] || [0.0, GROUND_Y + LEG_HEIGHT, 0.0];
+    var pelvisY = pose[28] || 0;
+
+    // Estimate the character's lowest point from pelvis height and nominal leg reach.
+    var minY = rootOffset[1] + pelvisY - LEG_HEIGHT;
+    if (minY < GROUND_Y) {
+        pose[28] = pelvisY + (GROUND_Y - minY);
+    }
+
+    return pose;
+}
+
 function updateAnimation(dt) {
     processInput(dt);  // defined in Input.js
     for (var f = 0; f < numFigures; f++) {
@@ -504,6 +509,7 @@ function updateAnimation(dt) {
         advanceAnimState(f, dt);
         var pose = getCurrentPose(f);
         if (f === 1) pose = mirrorPose(pose);
+        pose = clampPoseToGround(f, pose);
         initFigure(figures[f], pose);
     }
 }

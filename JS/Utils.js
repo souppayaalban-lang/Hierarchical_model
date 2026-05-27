@@ -41,9 +41,9 @@ var figures = [];
 var torse_height = 0.6;
 var head_height = 0.5;
 var head_radius = head_height / 2;
-var upper_arm_length = 0.6;
-var lower_arm_length = 0.8;
-var upper_leg_length = 0.8;
+var upper_arm_length = 0.5;
+var lower_arm_length = 0.6;
+var upper_leg_length = 0.7;
 var lower_leg_length = 0.6;
 
 var spine_height = 0.6;
@@ -52,7 +52,7 @@ var spine_radius = 0.10;
 var limb_radius = 0.08;
 var foot_length = 0.25;
 var foot_radius = limb_radius;
-var foot_base_angle = -90;
+var foot_base_angle = 90;
 
 var GROUND_Y = 0.0;
 var LEG_HEIGHT = (upper_leg_length - 2 * limb_radius + lower_leg_length - limb_radius) * Math.cos(20 * Math.PI / 180);

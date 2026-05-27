@@ -16,16 +16,16 @@ function pose(p) {
         spine[0], spine[1], spine[2],
         v1(p.torso),
         head[0], head[1], head[2],
-        lShoulder[0], lShoulder[1], lShoulder[2],
-        v1(p.lElbow),
         rShoulder[0], rShoulder[1], rShoulder[2],
         v1(p.rElbow),
-        lHip[0], lHip[1], lHip[2],
-        v1(p.lKnee),
+        lShoulder[0], lShoulder[1], lShoulder[2],
+        v1(p.lElbow),
         rHip[0], rHip[1], rHip[2],
         v1(p.rKnee),
-        v1(p.lFoot),
+        lHip[0], lHip[1], lHip[2],
+        v1(p.lKnee),
         v1(p.rFoot),
+        v1(p.lFoot),
         v1(p.pelvisY)    // index 28: vertical offset of the pelvis (FK height control)
     ];
 }
@@ -33,21 +33,105 @@ function pose(p) {
 // Penser à inverser la logique Droite = Gauche et inversement
 
 var IDLE_F0 = pose({
-    root: [0, 0, 0],
-    spine: [0, 0, 60], torso: 0, head: [0, 0, 0],
-    lShoulder: [-10, 0, 0], lElbow: -120,
-    rShoulder: [10, 0, 0], rElbow: -150,
-    lHip: [-15, 0, -90], lKnee: 20,
-    rHip: [10, 0, -90], rKnee: 20,
+    root: [0, 90, 0],
+    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [-20, -10, 0], rElbow: -120,
+    lHip: [0, -30, 0], lKnee: 45,
+    rHip: [0, 10, 0], rKnee: 30,
     lFoot: 0, rFoot: 0,
-    pelvisY: 0
+    pelvisY: -0.5
 });
+
+var WALK_F0 = pose({
+    root: [0, 90, 0],
+    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [-20, -10, 0], rElbow: -120,
+    lHip: [0, -30, 0], lKnee: 45,
+    rHip: [0, 10, 0], rKnee: 30,
+    lFoot: 0, rFoot: 0,
+    pelvisY: -0.5
+});
+
+var JAB_F0 = pose({
+    root: [0, 90, 0],
+    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [-20, -10, 0], rElbow: -120,
+    lHip: [0, -30, 0], lKnee: 45,
+    rHip: [0, 10, 0], rKnee: 30,
+    lFoot: 0, rFoot: 0,
+    pelvisY: -0.5
+});
+// Jab Gauche
+var JAB_F1 = pose({
+    root: [0, 90, 0],
+    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
+    lShoulder: [0, -110, 90], lElbow: 0,
+    rShoulder: [-20, -10, 0], rElbow: -120,
+    lHip: [0, -30, 0], lKnee: 45,
+    rHip: [0, 10, 0], rKnee: 30,
+    lFoot: 0, rFoot: 0,
+    pelvisY: -0.5
+});
+//Jab Droite
+var JAB_F2 = pose({
+    root: [0, 90, 0],
+    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [0, -110, 0], rElbow: 0,
+    lHip: [0, -30, 0], lKnee: 45,
+    rHip: [0, 10, 0], rKnee: 30,
+    lFoot: 0, rFoot: 0,
+    pelvisY: -0.5
+});
+var HIGHKICK_F0 = pose({
+    root: [0, 0, 0],
+    spine: [0, 40, 10], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [-20, -10, 0], rElbow: -120,
+    lHip: [140, 0, 0], lKnee: 0,
+    rHip: [0, 0, 30], rKnee: 0,
+    lFoot: 0, rFoot: 0,
+    pelvisY: -0.5
+});
+var HIGHKICK_F1 = pose({
+    root: [0, 0, 0],
+    spine: [0, 40, 5], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [-20, -10, 0], rElbow: -120,
+    lHip: [100, 0, 0], lKnee: 120,
+    rHip: [0, 0, 30], rKnee: 10,
+    lFoot: 0, rFoot: 0,
+    pelvisY: -0.5
+});
+
+
 function registerAnimations() {
     ANIMS["idle"] = {
         frames: [IDLE_F0],
-        fps: 6,
+        fps: 2,
         loop: true,
         priority: 0
+    };
+    ANIMS["walk_fwd"] = {
+        frames: [WALK_F0],
+        fps: 1,
+        loop: true,
+        priority: 0
+    };
+    ANIMS["jab"] = {
+        frames: [JAB_F0, JAB_F2],
+        fps: 8,
+        loop: false,
+        priority: 2
+    };
+    ANIMS["hi_kick"] = {
+        frames: [IDLE_F0, HIGHKICK_F1, HIGHKICK_F0, HIGHKICK_F0,  HIGHKICK_F1],
+        fps: 8,
+        loop: false,
+        priority: 2
     };
 
     // Uncomment when implemented
