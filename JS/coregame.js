@@ -1,7 +1,7 @@
 "use strict";
 
 // Default constants
-var ROUND_TIME = 60;
+var ROUND_TIME = 99;
 var MAX_HEALTH = 100;
 
 // Game state
