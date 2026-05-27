@@ -23,10 +23,6 @@ function mirrorPose(t) {
     m[21] = t[25];
     m[25] = t[21];
 
-    // Feet [26] L <-> [27] R
-    m[26] = t[27];
-    m[27] = t[26];
-
     return m;
 }
 

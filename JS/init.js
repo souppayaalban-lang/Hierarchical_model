@@ -278,10 +278,7 @@ function drawPart(name) {
         case "rightKnee":
             drawCapsule(lower_leg_length, limb_radius, false);
             return;
-        case "leftFoot":
-        case "rightFoot":
-            drawCapsule(foot_length, foot_radius, true);
-            return;
+
     }
 }
 
@@ -319,10 +316,8 @@ function rightShoulder() { drawPart("rightShoulder"); }
 function rightElbow() { drawPart("rightElbow"); }
 function leftHip() { drawPart("leftHip"); }
 function leftKnee() { drawPart("leftKnee"); }
-function leftFoot() { drawPart("leftFoot"); }
 function rightHip() { drawPart("rightHip"); }
 function rightKnee() { drawPart("rightKnee"); }
-function rightFoot() { drawPart("rightFoot"); }
 
 function traverse(id, figure) {
     if (id == null) {
@@ -331,7 +326,9 @@ function traverse(id, figure) {
     // Save the state of the recursivity
     stack.push(modelViewMatrix);
     modelViewMatrix = mult(modelViewMatrix, figure[id].transform);
-    figure[id].render();
+    if (figure[id].render) {
+        figure[id].render();
+    }
 
     // Traverse all childs
     if (figure[id].child != null) {
@@ -366,14 +363,15 @@ function initFigure(figure, theta) {
     }
 }
 
-var defaultTheta = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -20, 0, 0, 0, 20, 0, 0, 0, -10, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0];
-var defaultTheta2 = [0, 0, 0, 0, 90, 0, 0, 0, 0, 0, -20, -20, 0, -120, 20, 30, 0, -120, -10, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0];
+// Removed foot-angle slots (previously indices 26/27). Pelvis Y moved to index 26.
+var defaultTheta = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -20, 0, 0, 0, 20, 0, 0, 0, -10, 0, 0, 0, 10, 0, 0, 0, 0];
+var defaultTheta2 = [0, 0, 0, 0, 90, 0, 0, 0, 0, 0, -20, -20, 0, -120, 20, 30, 0, -120, -10, 0, 0, 0, 10, 0, 0, 0, 0];
 
 
 // Initialization of the Hierarchical Model
 function initNodes(id, figure, theta) {
     var m = mat4();
-    var pelvisY = theta[28] || 0;  // FK pelvis height offset
+    var pelvisY = theta[26] || 0;  // FK pelvis height offset (shifted after foot removal)
     switch (id) {
         case ID_Root:
             if (pelvisY !== 0) {
@@ -452,36 +450,14 @@ function initNodes(id, figure, theta) {
             figure[ID_RightKnee] = createNode(m, rightKnee, null, ID_RightFoot);
             break;
         case ID_LeftFoot:
-            // Preserve the root orientation while still compensating the leg chain.
+            // Keep only the joint transform (no foot rotation or drawing).
             m = translate(0, -lower_leg_length + 2 * limb_radius, 0);
-            // Undo Knee
-            m = mult(m, rotate(-theta[21], 1, 0, 0));
-            // Undo Hip (reverse order: Y, X, Z)
-            m = mult(m, rotate(-theta[20], 0, 1, 0));
-            m = mult(m, rotate(-theta[19], 1, 0, 0));
-            m = mult(m, rotate(-theta[18], 0, 0, 1));
-            // Re-apply hip Y torsion (the only inherited rotation we keep)
-            m = mult(m, rotate(theta[20], 0, 1, 0));
-            // Apply desired foot orientation
-            m = mult(m, rotate(foot_base_angle + theta[26], 1, 0, 0));
-            m = mult(m, translate(0, foot_length / 2, 0));
-            figure[ID_LeftFoot] = createNode(m, leftFoot, null, null);
+            figure[ID_LeftFoot] = createNode(m, null, null, null);
             break;
         case ID_RightFoot:
-            // Preserve the root orientation while still compensating the leg chain.
+            // Keep only the joint transform (no foot rotation or drawing).
             m = translate(0, -lower_leg_length + 2 * limb_radius, 0);
-            // Undo Knee
-            m = mult(m, rotate(-theta[25], 1, 0, 0));
-            // Undo Hip (reverse order: Y, X, Z)
-            m = mult(m, rotate(-theta[24], 0, 1, 0));
-            m = mult(m, rotate(-theta[23], 1, 0, 0));
-            m = mult(m, rotate(-theta[22], 0, 0, 1));
-            // Re-apply hip Y torsion (the only inherited rotation we keep)
-            m = mult(m, rotate(theta[24], 0, 1, 0));
-            // Apply desired foot orientation
-            m = mult(m, rotate(foot_base_angle + theta[27], 1, 0, 0));
-            m = mult(m, translate(0, foot_length / 2, 0));
-            figure[ID_RightFoot] = createNode(m, rightFoot, null, null);
+            figure[ID_RightFoot] = createNode(m, null, null, null);
             break;
     }
 }
@@ -491,12 +467,12 @@ function clampPoseToGround(f, pose) {
     if (!pose) return pose;
 
     var rootOffset = root_offsets[f] || [0.0, GROUND_Y + LEG_HEIGHT, 0.0];
-    var pelvisY = pose[28] || 0;
+    var pelvisY = pose[26] || 0;
 
     // Estimate the character's lowest point from pelvis height and nominal leg reach.
     var minY = rootOffset[1] + pelvisY - LEG_HEIGHT;
     if (minY < GROUND_Y) {
-        pose[28] = pelvisY + (GROUND_Y - minY);
+        pose[26] = pelvisY + (GROUND_Y - minY);
     }
 
     return pose;

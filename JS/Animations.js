@@ -24,9 +24,7 @@ function pose(p) {
         v1(p.rKnee),
         lHip[0], lHip[1], lHip[2],
         v1(p.lKnee),
-        v1(p.rFoot),
-        v1(p.lFoot),
-        v1(p.pelvisY)    // index 28: vertical offset of the pelvis (FK height control)
+        v1(p.pelvisY)    // index 26: vertical offset of the pelvis (FK height control)
     ];
 }
 
@@ -39,7 +37,6 @@ var IDLE_F0 = pose({
     rShoulder: [-20, -10, 0], rElbow: -120,
     lHip: [0, -30, 0], lKnee: 45,
     rHip: [0, 10, 0], rKnee: 30,
-    lFoot: 0, rFoot: 0,
     pelvisY: -0.5
 });
 
@@ -50,7 +47,6 @@ var WALK_F0 = pose({
     rShoulder: [-20, -10, 0], rElbow: -120,
     lHip: [0, -30, 0], lKnee: 45,
     rHip: [0, 10, 0], rKnee: 30,
-    lFoot: 0, rFoot: 0,
     pelvisY: -0.5
 });
 
@@ -61,7 +57,6 @@ var JAB_F0 = pose({
     rShoulder: [-20, -10, 0], rElbow: -120,
     lHip: [0, -30, 0], lKnee: 45,
     rHip: [0, 10, 0], rKnee: 30,
-    lFoot: 0, rFoot: 0,
     pelvisY: -0.5
 });
 // Jab Gauche
@@ -72,7 +67,6 @@ var JAB_F1 = pose({
     rShoulder: [-20, -10, 0], rElbow: -120,
     lHip: [0, -30, 0], lKnee: 45,
     rHip: [0, 10, 0], rKnee: 30,
-    lFoot: 0, rFoot: 0,
     pelvisY: -0.5
 });
 //Jab Droite
@@ -83,7 +77,6 @@ var JAB_F2 = pose({
     rShoulder: [0, -110, 0], rElbow: 0,
     lHip: [0, -30, 0], lKnee: 45,
     rHip: [0, 10, 0], rKnee: 30,
-    lFoot: 0, rFoot: 0,
     pelvisY: -0.5
 });
 var HIGHKICK_F0 = pose({
@@ -93,7 +86,6 @@ var HIGHKICK_F0 = pose({
     rShoulder: [-20, -10, 0], rElbow: -120,
     lHip: [140, 0, 0], lKnee: 0,
     rHip: [0, 0, 30], rKnee: 0,
-    lFoot: 0, rFoot: 0,
     pelvisY: -0.5
 });
 var HIGHKICK_F1 = pose({
@@ -103,7 +95,6 @@ var HIGHKICK_F1 = pose({
     rShoulder: [-20, -10, 0], rElbow: -120,
     lHip: [100, 0, 0], lKnee: 120,
     rHip: [0, 0, 30], rKnee: 10,
-    lFoot: 0, rFoot: 0,
     pelvisY: -0.5
 });
 
