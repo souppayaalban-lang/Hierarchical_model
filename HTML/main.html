@@ -22,6 +22,7 @@
             uniform float shininess;
             uniform float useLighting;
             uniform vec4 flatColor;
+            uniform vec4 tintColor;
 
             void
             main()
@@ -51,7 +52,7 @@
 
                 vec4 lightingColor = ambient + diffuse + specular;
                 lightingColor.a = 1.0;
-                fColor = mix(flatColor, lightingColor, useLighting);
+                fColor = mix(flatColor, lightingColor * tintColor, useLighting);
 
                 gl_PointSize = 1.0;
                 gl_Position = projectionMatrix * modelViewMatrix * vPosition;
@@ -132,13 +133,13 @@
         <img id="logo" src="../CSS/assets/kinemastick-fighter-X.png" alt="Kinemastick Fighter X">
         <div id="canvas-area">
             <div id="hud-bar">
-                <div class="health-bar-shadow p1-shadow">
+                <div id="p1-health-shadow" class="health-bar-shadow p1-shadow">
                     <div id="p1-health-bar" class="health-bar">
                         <div id="p1-health-fill" class="health-fill"></div>
                     </div>
                 </div>
                 <div id="timer-display">99</div>
-                <div class="health-bar-shadow p2-shadow">
+                <div id="p2-health-shadow" class="health-bar-shadow p2-shadow">
                     <div id="p2-health-bar" class="health-bar">
                         <div id="p2-health-fill" class="health-fill"></div>
                     </div>

@@ -82,11 +82,21 @@ var WALK_SPEED = 1.5;
 var X_MIN = -4.0;
 var X_MAX =  4.0;
 
+// stunTimers[f] > 0 means figure f cannot act (seconds remaining).
+var stunTimers = [];
+
+// hitFlashTimers[f] true while figure f should render white.
+var hitFlashTimers = [];
+
+// hitFreeze true while the canvas should be frozen after a hit.
+var hitFreeze = false;
+
 function initAnimPlayer() {
     registerAnimations();
 
     figurePositions = [];
     animStates = [];
+    stunTimers = [];
     for (var f = 0; f < numFigures; f++) {
         figurePositions.push(root_offsets[f] ? root_offsets[f][0] : 0);
         animStates.push({
@@ -97,6 +107,8 @@ function initAnimPlayer() {
             blendDuration: BLEND_DURATION,
             priority:      0
         });
+        stunTimers.push(0);
+        hitFlashTimers.push(false);
     }
 }
 
