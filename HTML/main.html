@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-        <link rel="stylesheet" href="../CSS/main.css">
-        <title>Stickman Fighter</title>
-        <script id="vertex-shader" type="x-shader/x-vertex">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <link rel="stylesheet" href="../CSS/main.css">
+    <link rel="icon" href="../CSS/assets/kfx.ico" type="image/x-icon">
+    <title>Kinemastick Fighter X</title>
+    <script id="vertex-shader" type="x-shader/x-vertex">
             attribute vec4 vPosition;
             attribute vec3 vNormal;
 
@@ -55,7 +57,7 @@
                 gl_Position = projectionMatrix * modelViewMatrix * vPosition;
             }
         </script>
-        <script id="fragment-shader" type="x-shader/x-fragment">
+    <script id="fragment-shader" type="x-shader/x-fragment">
             precision mediump float;
             varying vec4 fColor;
 
@@ -66,98 +68,133 @@
             }
         </script>
 
-        <script type="text/javascript" src="../Common/webgl-utils.js"></script>
-        <script type="text/javascript" src="../Common/initShaders.js"></script>
-        <script type="text/javascript" src="../Common/MV.js"></script>
-        <script type="text/javascript" src="../JS/Utils.js"></script>
-        <script type="text/javascript" src="../JS/init.js"></script>
-        <script type="text/javascript" src="../JS/ui.js"></script>
-        <script type="text/javascript" src="../JS/coregame.js"></script>
-        <script type="text/javascript" src="../JS/AnimPlayer.js"></script>
-        <script type="text/javascript" src="../JS/Animations.js"></script>
-        <script type="text/javascript" src="../JS/Input.js"></script>
-    </head>
-    <body>
+    <script type="text/javascript" src="../Common/webgl-utils.js"></script>
+    <script type="text/javascript" src="../Common/initShaders.js"></script>
+    <script type="text/javascript" src="../Common/MV.js"></script>
+    <script type="text/javascript" src="../JS/Utils.js"></script>
+    <script type="text/javascript" src="../JS/init.js"></script>
+    <script type="text/javascript" src="../JS/ui.js"></script>
+    <script type="text/javascript" src="../JS/coregame.js"></script>
+    <script type="text/javascript" src="../JS/AnimPlayer.js"></script>
+    <script type="text/javascript" src="../JS/Animations.js"></script>
+    <script type="text/javascript" src="../JS/Input.js"></script>
+</head>
 
-        <div id="logo">Game Logo</div>
+<body>
 
-        <div id="game-wrapper">
+    <div id="game-wrapper">
 
-            <!-- Player 1 controls -->
-            <div id="p1-panel" class="player-panel">
-                <div class="player-label">Player 1</div>
-                <div class="keyboard-grid">
-                    <div id="p1-key-q" class="key-btn p1-key">
-                        <svg class="key-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M221.6 28.53c-5.2.1-10.6 2.18-15.8 6.35-7.7 6.03-14.4 16.44-17.8 29.58-3.3 13.14-2.5 26.2 1.1 36.24 3.6 9.9 9.4 16.4 16.6 18.9 6 2.1 12.6 1.3 19-2.6 2.3-13.6 9.9-24.28 21.3-31.6.1-.19.1-.38.2-.58 3.3-13.15 2.5-26.2-1.1-36.2-3.6-9.95-9.4-16.46-16.6-18.97-2.3-.78-4.6-1.16-6.9-1.12zm212.5 49.31c-3.2.72-11 3.44-18.7 7.15-8.7 4.14-17.4 8.86-22.4 11.5l-.9.45-.9.25c-38.1 10.61-57.5 17.91-88.3 23.21-2.2 6.1-6 12.5-11.3 19h-.1v.1c-6.2 7.4-12.4 14.7-18.7 21.9 45.8-8.5 78.8-16.7 132.7-38l4.1-1.6 3.9 2.3c5.5 3.4 13.4 5.8 19.6 6.3 3.1.3 5.8 0 7.4-.4 1.4-.4 1.4-.7 1.4-.6 5.4-11.9 7.3-24.4 5.5-33.8-1.7-8.89-5.7-14.64-13.3-17.76zM272.2 96.08c-8.9-.1-20.1 4.32-27.6 15.62-5.9 29.5-26.7 50.1-57.2 62.6l-6.8-16.6c12.7-5.2 22.6-11.2 30.1-18.6-3.1-.2-6.3-.9-9.4-2-10.4-3.7-18.6-11.6-24.1-21.4-14.6 2.8-22.6 6.3-32.8 14.6-4.1 36.5 6.8 67.5 27.6 96.6 41.7-25.4 73.7-60.5 105.7-98.9 8.2-10.2 10-17.6 9.5-21.9-.6-4.2-2.7-6.73-7.2-8.58-2.2-.91-4.9-1.42-7.8-1.44zM131.5 185.5c-1.7 23.2-.7 48.5-1 75v3.8l-2.7 2.6C75.51 317.5 33.9 400.5 20.36 495.7h40.62c9.12-41.2 17.47-82.3 34.69-115.7 18.23-35.3 47.83-62 96.23-67.5l4.8-.6 3.1 3.7c38.2 45.7 75.3 103.9 85.9 180.1h39.6c-6.3-88.4-46.8-156.5-97.1-229-9.8-14.1-10.2-29.8-6.5-44.9.9-3.8 2.1-7.7 3.4-11.7-15.5 13.6-32.3 26-51 36.7l-6.9 3.9-4.7-6.2c-14-18.2-24.8-37.8-31-59z" fill="currentColor"/></svg>
-                        <span class="key-letter">Q</span>
-                    </div>
-                    <div class="key-btn unused">
-                        <span class="key-letter">W</span>
-                    </div>
-                    <div id="p1-key-e" class="key-btn p1-key">
-                        <svg class="key-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M117.842 26.268a15.25 15.25 0 0 0-4.418.76c-5.625 1.858-10.165 7.048-12.6 15.701-2.435 8.653-2.255 20.27 1.668 32.045 3.923 11.775 10.754 21.198 17.9 26.686 7.147 5.488 13.9 6.946 19.526 5.088 5.625-1.858 10.163-7.046 12.597-15.7 2.435-8.653 2.256-20.271-1.668-32.046-3.923-11.776-10.753-21.196-17.9-26.684-5.36-4.116-10.498-5.966-15.105-5.85zm183.933 12.373c-3.461.157-6.505 1.749-8.25 5.344L279.89 68.73l-26.733 32.309s-53.832-9.528-72.039-6.863a518.655 518.655 0 0 0-11.318 1.767c-3.614 12.656-11.809 23.592-24.192 27.682-11.513 3.803-23.674.702-33.761-6.178-4.565 3.511-8.787 7.581-12.557 12.33-18.674 14.66-26.385 24.747-42.1 34.92 3.083-14.864 10.683-29.677 19.026-41.879 1.37-2.003 11.495-10.555 12.888-12.406 7.48-14.706-8.464-41.216-23.476-15.86-1.425 1.979-7.346 18.877-8.817 21.096-14.574 28.867-23.676 47.817-15.474 76.325 2.756 9.578 30.91-4.905 55.23-22.159 26.469 37.34 59.364 48.604 78.373 63.078-23.266 83.384 10.267 147.263 29.276 207.721l-29.149 36.086c-8.868 10.627 48.711 13.113 52.412.75l7.71-33.84c-28.831-90.508-3.142-157.686 17.62-207.722 55.208-59.043 115.23-82.304 168.9-128.791l45.302-9.635c10.848-19.916 10.236-29.748-13.854-30.697l-44.924 17.595c-56.586 31.807-146.01 53.348-186.496 97.99-.897-14.045-17.4-47.3-20.902-58.437 19.373 2.573 45.668 4.223 60.642-2.682 16.005-7.38 33.63-40.796 33.63-40.796l19.663-14.551c17.065-10.058-.63-27.798-12.994-27.24z" fill="currentColor"/></svg>
-                        <span class="key-letter">E</span>
-                    </div>
-                    <div id="p1-key-a" class="key-btn p1-key">
-                        <svg class="key-icon flip-h" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 17L11 12L6 7M13 17L18 12L13 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <span class="key-letter">A</span>
-                    </div>
-                    <div class="key-btn unused">
-                        <span class="key-letter">S</span>
-                    </div>
-                    <div id="p1-key-d" class="key-btn p1-key">
-                        <svg class="key-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 17L11 12L6 7M13 17L18 12L13 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <span class="key-letter">D</span>
-                    </div>
+        <!-- Player 1 controls -->
+        <div id="p1-panel" class="player-panel">
+            <div class="player-label">Player ONE</div>
+            <div class="keyboard-grid">
+                <div id="p1-key-q" class="key-btn p1-key">
+                    <svg class="key-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M221.6 28.53c-5.2.1-10.6 2.18-15.8 6.35-7.7 6.03-14.4 16.44-17.8 29.58-3.3 13.14-2.5 26.2 1.1 36.24 3.6 9.9 9.4 16.4 16.6 18.9 6 2.1 12.6 1.3 19-2.6 2.3-13.6 9.9-24.28 21.3-31.6.1-.19.1-.38.2-.58 3.3-13.15 2.5-26.2-1.1-36.2-3.6-9.95-9.4-16.46-16.6-18.97-2.3-.78-4.6-1.16-6.9-1.12zm212.5 49.31c-3.2.72-11 3.44-18.7 7.15-8.7 4.14-17.4 8.86-22.4 11.5l-.9.45-.9.25c-38.1 10.61-57.5 17.91-88.3 23.21-2.2 6.1-6 12.5-11.3 19h-.1v.1c-6.2 7.4-12.4 14.7-18.7 21.9 45.8-8.5 78.8-16.7 132.7-38l4.1-1.6 3.9 2.3c5.5 3.4 13.4 5.8 19.6 6.3 3.1.3 5.8 0 7.4-.4 1.4-.4 1.4-.7 1.4-.6 5.4-11.9 7.3-24.4 5.5-33.8-1.7-8.89-5.7-14.64-13.3-17.76zM272.2 96.08c-8.9-.1-20.1 4.32-27.6 15.62-5.9 29.5-26.7 50.1-57.2 62.6l-6.8-16.6c12.7-5.2 22.6-11.2 30.1-18.6-3.1-.2-6.3-.9-9.4-2-10.4-3.7-18.6-11.6-24.1-21.4-14.6 2.8-22.6 6.3-32.8 14.6-4.1 36.5 6.8 67.5 27.6 96.6 41.7-25.4 73.7-60.5 105.7-98.9 8.2-10.2 10-17.6 9.5-21.9-.6-4.2-2.7-6.73-7.2-8.58-2.2-.91-4.9-1.42-7.8-1.44zM131.5 185.5c-1.7 23.2-.7 48.5-1 75v3.8l-2.7 2.6C75.51 317.5 33.9 400.5 20.36 495.7h40.62c9.12-41.2 17.47-82.3 34.69-115.7 18.23-35.3 47.83-62 96.23-67.5l4.8-.6 3.1 3.7c38.2 45.7 75.3 103.9 85.9 180.1h39.6c-6.3-88.4-46.8-156.5-97.1-229-9.8-14.1-10.2-29.8-6.5-44.9.9-3.8 2.1-7.7 3.4-11.7-15.5 13.6-32.3 26-51 36.7l-6.9 3.9-4.7-6.2c-14-18.2-24.8-37.8-31-59z"
+                            fill="currentColor" />
+                    </svg>
+                    <span class="key-letter">Q</span>
+                </div>
+                <div class="key-btn unused">
+                    <span class="key-letter">W</span>
+                </div>
+                <div id="p1-key-e" class="key-btn p1-key">
+                    <svg class="key-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M117.842 26.268a15.25 15.25 0 0 0-4.418.76c-5.625 1.858-10.165 7.048-12.6 15.701-2.435 8.653-2.255 20.27 1.668 32.045 3.923 11.775 10.754 21.198 17.9 26.686 7.147 5.488 13.9 6.946 19.526 5.088 5.625-1.858 10.163-7.046 12.597-15.7 2.435-8.653 2.256-20.271-1.668-32.046-3.923-11.776-10.753-21.196-17.9-26.684-5.36-4.116-10.498-5.966-15.105-5.85zm183.933 12.373c-3.461.157-6.505 1.749-8.25 5.344L279.89 68.73l-26.733 32.309s-53.832-9.528-72.039-6.863a518.655 518.655 0 0 0-11.318 1.767c-3.614 12.656-11.809 23.592-24.192 27.682-11.513 3.803-23.674.702-33.761-6.178-4.565 3.511-8.787 7.581-12.557 12.33-18.674 14.66-26.385 24.747-42.1 34.92 3.083-14.864 10.683-29.677 19.026-41.879 1.37-2.003 11.495-10.555 12.888-12.406 7.48-14.706-8.464-41.216-23.476-15.86-1.425 1.979-7.346 18.877-8.817 21.096-14.574 28.867-23.676 47.817-15.474 76.325 2.756 9.578 30.91-4.905 55.23-22.159 26.469 37.34 59.364 48.604 78.373 63.078-23.266 83.384 10.267 147.263 29.276 207.721l-29.149 36.086c-8.868 10.627 48.711 13.113 52.412.75l7.71-33.84c-28.831-90.508-3.142-157.686 17.62-207.722 55.208-59.043 115.23-82.304 168.9-128.791l45.302-9.635c10.848-19.916 10.236-29.748-13.854-30.697l-44.924 17.595c-56.586 31.807-146.01 53.348-186.496 97.99-.897-14.045-17.4-47.3-20.902-58.437 19.373 2.573 45.668 4.223 60.642-2.682 16.005-7.38 33.63-40.796 33.63-40.796l19.663-14.551c17.065-10.058-.63-27.798-12.994-27.24z"
+                            fill="currentColor" />
+                    </svg>
+                    <span class="key-letter">E</span>
+                </div>
+                <div id="p1-key-a" class="key-btn p1-key">
+                    <svg class="key-icon flip-h" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 17L11 12L6 7M13 17L18 12L13 7" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span class="key-letter">A</span>
+                </div>
+                <div class="key-btn unused">
+                    <span class="key-letter">S</span>
+                </div>
+                <div id="p1-key-d" class="key-btn p1-key">
+                    <svg class="key-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 17L11 12L6 7M13 17L18 12L13 7" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span class="key-letter">D</span>
                 </div>
             </div>
+        </div>
 
-            <!-- Canvas + HUD -->
-            <div id="canvas-area">
-                <div id="hud-bar">
+        <!-- Center column: logo + canvas -->
+        <div id="center-col">
+        <img id="logo" src="../CSS/assets/kinemastick-fighter-X.png" alt="Kinemastick Fighter X">
+        <div id="canvas-area">
+            <div id="hud-bar">
+                <div class="health-bar-shadow p1-shadow">
                     <div id="p1-health-bar" class="health-bar">
                         <div id="p1-health-fill" class="health-fill"></div>
                     </div>
-                    <div id="timer-display">60</div>
+                </div>
+                <div id="timer-display">99</div>
+                <div class="health-bar-shadow p2-shadow">
                     <div id="p2-health-bar" class="health-bar">
                         <div id="p2-health-fill" class="health-fill"></div>
                     </div>
                 </div>
-                <canvas id="gl-canvas" width="1024" height="512" draggable="false">
-                    Your browser does not support HTML5 canvas.
-                </canvas>
             </div>
-
-            <!-- Player 2 controls -->
-            <div id="p2-panel" class="player-panel">
-                <div class="player-label">Player 2</div>
-                <div class="keyboard-grid">
-                    <div id="p2-key-u" class="key-btn p2-key">
-                        <svg class="key-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M221.6 28.53c-5.2.1-10.6 2.18-15.8 6.35-7.7 6.03-14.4 16.44-17.8 29.58-3.3 13.14-2.5 26.2 1.1 36.24 3.6 9.9 9.4 16.4 16.6 18.9 6 2.1 12.6 1.3 19-2.6 2.3-13.6 9.9-24.28 21.3-31.6.1-.19.1-.38.2-.58 3.3-13.15 2.5-26.2-1.1-36.2-3.6-9.95-9.4-16.46-16.6-18.97-2.3-.78-4.6-1.16-6.9-1.12zm212.5 49.31c-3.2.72-11 3.44-18.7 7.15-8.7 4.14-17.4 8.86-22.4 11.5l-.9.45-.9.25c-38.1 10.61-57.5 17.91-88.3 23.21-2.2 6.1-6 12.5-11.3 19h-.1v.1c-6.2 7.4-12.4 14.7-18.7 21.9 45.8-8.5 78.8-16.7 132.7-38l4.1-1.6 3.9 2.3c5.5 3.4 13.4 5.8 19.6 6.3 3.1.3 5.8 0 7.4-.4 1.4-.4 1.4-.7 1.4-.6 5.4-11.9 7.3-24.4 5.5-33.8-1.7-8.89-5.7-14.64-13.3-17.76zM272.2 96.08c-8.9-.1-20.1 4.32-27.6 15.62-5.9 29.5-26.7 50.1-57.2 62.6l-6.8-16.6c12.7-5.2 22.6-11.2 30.1-18.6-3.1-.2-6.3-.9-9.4-2-10.4-3.7-18.6-11.6-24.1-21.4-14.6 2.8-22.6 6.3-32.8 14.6-4.1 36.5 6.8 67.5 27.6 96.6 41.7-25.4 73.7-60.5 105.7-98.9 8.2-10.2 10-17.6 9.5-21.9-.6-4.2-2.7-6.73-7.2-8.58-2.2-.91-4.9-1.42-7.8-1.44zM131.5 185.5c-1.7 23.2-.7 48.5-1 75v3.8l-2.7 2.6C75.51 317.5 33.9 400.5 20.36 495.7h40.62c9.12-41.2 17.47-82.3 34.69-115.7 18.23-35.3 47.83-62 96.23-67.5l4.8-.6 3.1 3.7c38.2 45.7 75.3 103.9 85.9 180.1h39.6c-6.3-88.4-46.8-156.5-97.1-229-9.8-14.1-10.2-29.8-6.5-44.9.9-3.8 2.1-7.7 3.4-11.7-15.5 13.6-32.3 26-51 36.7l-6.9 3.9-4.7-6.2c-14-18.2-24.8-37.8-31-59z" fill="currentColor"/></svg>
-                        <span class="key-letter">U</span>
-                    </div>
-                    <div class="key-btn unused">
-                        <span class="key-letter">I</span>
-                    </div>
-                    <div id="p2-key-o" class="key-btn p2-key">
-                        <svg class="key-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M117.842 26.268a15.25 15.25 0 0 0-4.418.76c-5.625 1.858-10.165 7.048-12.6 15.701-2.435 8.653-2.255 20.27 1.668 32.045 3.923 11.775 10.754 21.198 17.9 26.686 7.147 5.488 13.9 6.946 19.526 5.088 5.625-1.858 10.163-7.046 12.597-15.7 2.435-8.653 2.256-20.271-1.668-32.046-3.923-11.776-10.753-21.196-17.9-26.684-5.36-4.116-10.498-5.966-15.105-5.85zm183.933 12.373c-3.461.157-6.505 1.749-8.25 5.344L279.89 68.73l-26.733 32.309s-53.832-9.528-72.039-6.863a518.655 518.655 0 0 0-11.318 1.767c-3.614 12.656-11.809 23.592-24.192 27.682-11.513 3.803-23.674.702-33.761-6.178-4.565 3.511-8.787 7.581-12.557 12.33-18.674 14.66-26.385 24.747-42.1 34.92 3.083-14.864 10.683-29.677 19.026-41.879 1.37-2.003 11.495-10.555 12.888-12.406 7.48-14.706-8.464-41.216-23.476-15.86-1.425 1.979-7.346 18.877-8.817 21.096-14.574 28.867-23.676 47.817-15.474 76.325 2.756 9.578 30.91-4.905 55.23-22.159 26.469 37.34 59.364 48.604 78.373 63.078-23.266 83.384 10.267 147.263 29.276 207.721l-29.149 36.086c-8.868 10.627 48.711 13.113 52.412.75l7.71-33.84c-28.831-90.508-3.142-157.686 17.62-207.722 55.208-59.043 115.23-82.304 168.9-128.791l45.302-9.635c10.848-19.916 10.236-29.748-13.854-30.697l-44.924 17.595c-56.586 31.807-146.01 53.348-186.496 97.99-.897-14.045-17.4-47.3-20.902-58.437 19.373 2.573 45.668 4.223 60.642-2.682 16.005-7.38 33.63-40.796 33.63-40.796l19.663-14.551c17.065-10.058-.63-27.798-12.994-27.24z" fill="currentColor"/></svg>
-                        <span class="key-letter">O</span>
-                    </div>
-                    <div id="p2-key-j" class="key-btn p2-key">
-                        <svg class="key-icon flip-h" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 17L11 12L6 7M13 17L18 12L13 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <span class="key-letter">J</span>
-                    </div>
-                    <div class="key-btn unused">
-                        <span class="key-letter">K</span>
-                    </div>
-                    <div id="p2-key-l" class="key-btn p2-key">
-                        <svg class="key-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 17L11 12L6 7M13 17L18 12L13 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <span class="key-letter">L</span>
-                    </div>
-                </div>
-            </div>
-
+            <canvas id="gl-canvas" width="1024" height="512" draggable="false">
+                Your browser does not support HTML5 canvas.
+            </canvas>
+        </div>
         </div>
 
-    </body>
+        <!-- Player 2 controls -->
+        <div id="p2-panel" class="player-panel">
+            <div class="player-label">Player TWO</div>
+            <div class="keyboard-grid">
+                <div id="p2-key-u" class="key-btn p2-key">
+                    <svg class="key-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M221.6 28.53c-5.2.1-10.6 2.18-15.8 6.35-7.7 6.03-14.4 16.44-17.8 29.58-3.3 13.14-2.5 26.2 1.1 36.24 3.6 9.9 9.4 16.4 16.6 18.9 6 2.1 12.6 1.3 19-2.6 2.3-13.6 9.9-24.28 21.3-31.6.1-.19.1-.38.2-.58 3.3-13.15 2.5-26.2-1.1-36.2-3.6-9.95-9.4-16.46-16.6-18.97-2.3-.78-4.6-1.16-6.9-1.12zm212.5 49.31c-3.2.72-11 3.44-18.7 7.15-8.7 4.14-17.4 8.86-22.4 11.5l-.9.45-.9.25c-38.1 10.61-57.5 17.91-88.3 23.21-2.2 6.1-6 12.5-11.3 19h-.1v.1c-6.2 7.4-12.4 14.7-18.7 21.9 45.8-8.5 78.8-16.7 132.7-38l4.1-1.6 3.9 2.3c5.5 3.4 13.4 5.8 19.6 6.3 3.1.3 5.8 0 7.4-.4 1.4-.4 1.4-.7 1.4-.6 5.4-11.9 7.3-24.4 5.5-33.8-1.7-8.89-5.7-14.64-13.3-17.76zM272.2 96.08c-8.9-.1-20.1 4.32-27.6 15.62-5.9 29.5-26.7 50.1-57.2 62.6l-6.8-16.6c12.7-5.2 22.6-11.2 30.1-18.6-3.1-.2-6.3-.9-9.4-2-10.4-3.7-18.6-11.6-24.1-21.4-14.6 2.8-22.6 6.3-32.8 14.6-4.1 36.5 6.8 67.5 27.6 96.6 41.7-25.4 73.7-60.5 105.7-98.9 8.2-10.2 10-17.6 9.5-21.9-.6-4.2-2.7-6.73-7.2-8.58-2.2-.91-4.9-1.42-7.8-1.44zM131.5 185.5c-1.7 23.2-.7 48.5-1 75v3.8l-2.7 2.6C75.51 317.5 33.9 400.5 20.36 495.7h40.62c9.12-41.2 17.47-82.3 34.69-115.7 18.23-35.3 47.83-62 96.23-67.5l4.8-.6 3.1 3.7c38.2 45.7 75.3 103.9 85.9 180.1h39.6c-6.3-88.4-46.8-156.5-97.1-229-9.8-14.1-10.2-29.8-6.5-44.9.9-3.8 2.1-7.7 3.4-11.7-15.5 13.6-32.3 26-51 36.7l-6.9 3.9-4.7-6.2c-14-18.2-24.8-37.8-31-59z"
+                            fill="currentColor" />
+                    </svg>
+                    <span class="key-letter">U</span>
+                </div>
+                <div class="key-btn unused">
+                    <span class="key-letter">I</span>
+                </div>
+                <div id="p2-key-o" class="key-btn p2-key">
+                    <svg class="key-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M117.842 26.268a15.25 15.25 0 0 0-4.418.76c-5.625 1.858-10.165 7.048-12.6 15.701-2.435 8.653-2.255 20.27 1.668 32.045 3.923 11.775 10.754 21.198 17.9 26.686 7.147 5.488 13.9 6.946 19.526 5.088 5.625-1.858 10.163-7.046 12.597-15.7 2.435-8.653 2.256-20.271-1.668-32.046-3.923-11.776-10.753-21.196-17.9-26.684-5.36-4.116-10.498-5.966-15.105-5.85zm183.933 12.373c-3.461.157-6.505 1.749-8.25 5.344L279.89 68.73l-26.733 32.309s-53.832-9.528-72.039-6.863a518.655 518.655 0 0 0-11.318 1.767c-3.614 12.656-11.809 23.592-24.192 27.682-11.513 3.803-23.674.702-33.761-6.178-4.565 3.511-8.787 7.581-12.557 12.33-18.674 14.66-26.385 24.747-42.1 34.92 3.083-14.864 10.683-29.677 19.026-41.879 1.37-2.003 11.495-10.555 12.888-12.406 7.48-14.706-8.464-41.216-23.476-15.86-1.425 1.979-7.346 18.877-8.817 21.096-14.574 28.867-23.676 47.817-15.474 76.325 2.756 9.578 30.91-4.905 55.23-22.159 26.469 37.34 59.364 48.604 78.373 63.078-23.266 83.384 10.267 147.263 29.276 207.721l-29.149 36.086c-8.868 10.627 48.711 13.113 52.412.75l7.71-33.84c-28.831-90.508-3.142-157.686 17.62-207.722 55.208-59.043 115.23-82.304 168.9-128.791l45.302-9.635c10.848-19.916 10.236-29.748-13.854-30.697l-44.924 17.595c-56.586 31.807-146.01 53.348-186.496 97.99-.897-14.045-17.4-47.3-20.902-58.437 19.373 2.573 45.668 4.223 60.642-2.682 16.005-7.38 33.63-40.796 33.63-40.796l19.663-14.551c17.065-10.058-.63-27.798-12.994-27.24z"
+                            fill="currentColor" />
+                    </svg>
+                    <span class="key-letter">O</span>
+                </div>
+                <div id="p2-key-j" class="key-btn p2-key">
+                    <svg class="key-icon flip-h" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 17L11 12L6 7M13 17L18 12L13 7" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span class="key-letter">J</span>
+                </div>
+                <div class="key-btn unused">
+                    <span class="key-letter">K</span>
+                </div>
+                <div id="p2-key-l" class="key-btn p2-key">
+                    <svg class="key-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 17L11 12L6 7M13 17L18 12L13 7" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span class="key-letter">L</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
 </html>
