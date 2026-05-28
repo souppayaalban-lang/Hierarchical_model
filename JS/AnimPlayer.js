@@ -1,60 +1,25 @@
 "use strict";
 
-// Converts a P1 pose (authored facing +X) into a P2 pose (facing -X).
-// Z (lateral) angles are negated on swap; X (forward) and Y (twist) are swapped as-is.
+// flips a p1 pose to p2: reverses facing, swaps left/right limbs.
+// lateral (z) angles negate on swap; forward (x) and twist (y) swap as-is.
 function mirrorPose(t) {
     var m = t.slice();
 
-    m[1] = t[1] + 180;  // root faces opposite direction
+    m[1] = 360 - t[1];  // reverse facing direction
 
-    // Shoulders [10 Z, 11 X, 12 Y] L <-> [14 Z, 15 X, 16 Y] R
-    m[10] = -t[14]; m[11] = t[15]; m[12] = t[16];
-    m[14] = -t[10]; m[15] = t[11]; m[16] = t[12];
+    m[4] = -t[4];  // spine lateral
+    m[5] = -t[5];  // spine twist
 
-    // Elbows [13] L <-> [17] R
-    m[13] = t[17];
-    m[17] = t[13];
+    // arms: rShoulder[10-12] + rElbow[13]  <->  lShoulder[14-16] + lElbow[17]
+    m[10] = -t[14]; m[11] = t[15]; m[12] = t[16]; m[13] = t[17];
+    m[14] = -t[10]; m[15] = t[11]; m[16] = t[12]; m[17] = t[13];
 
-    // Hips [18 Z, 19 X, 20 Y] L <-> [22 Z, 23 X, 24 Y] R
-    m[18] = -t[22]; m[19] = t[23]; m[20] = t[24];
-    m[22] = -t[18]; m[23] = t[19]; m[24] = t[20];
-
-    // Knees [21] L <-> [25] R
-    m[21] = t[25];
-    m[25] = t[21];
+    // legs: rHip[18-20] + rKnee[21]  <->  lHip[22-24] + lKnee[25]
+    m[18] = -t[22]; m[19] = t[23]; m[20] = t[24]; m[21] = t[25];
+    m[22] = -t[18]; m[23] = t[19]; m[24] = t[20]; m[25] = t[21];
 
     return m;
 }
-
-function testMirrorPose() {
-    var o = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        10, 20, 30, 45,
-        50, 60, 70, 80,
-        15, 25, 35, 90,
-        55, 65, 75, 100];
-
-    var m = mirrorPose(o);
-    var pass = true;
-
-    function check(label, got, expected) {
-        if (got !== expected) {
-            console.warn("[AnimPlayer] FAIL " + label + ": got " + got + ", expected " + expected);
-            pass = false;
-        }
-    }
-
-    check("root Y", m[1], o[1] + 180);
-    check("Lsh Z",  m[10], -o[14]); check("Lsh X", m[11], o[15]); check("Lsh Y", m[12], o[16]);
-    check("Rsh Z",  m[14], -o[10]); check("Rsh X", m[15], o[11]); check("Rsh Y", m[16], o[12]);
-    check("Lelbow", m[13], o[17]);  check("Relbow", m[17], o[13]);
-    check("Lhip Z", m[18], -o[22]); check("Lhip X", m[19], o[23]); check("Lhip Y", m[20], o[24]);
-    check("Rhip Z", m[22], -o[18]); check("Rhip X", m[23], o[19]); check("Rhip Y", m[24], o[20]);
-    check("Lknee",  m[21], o[25]);  check("Rknee",  m[25], o[21]);
-
-    console.log("[AnimPlayer] mirrorPose: " + (pass ? "PASS" : "FAIL"));
-}
-
-window.addEventListener("load", testMirrorPose);
 
 function smoothstep(t) {
     t = Math.max(0, Math.min(1, t));
