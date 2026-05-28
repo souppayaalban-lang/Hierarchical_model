@@ -21,11 +21,7 @@ function mirrorPose(t) {
     return m;
 }
 
-function smoothstep(t) {
-    t = Math.max(0, Math.min(1, t));
-    return t * t * (3 - 2 * t);
-}
-
+// returns linear interpolation between pose a and pose b
 function lerpPose(a, b, t) {
     var out = new Array(a.length);
     for (var i = 0; i < a.length; i++) {
@@ -34,7 +30,7 @@ function lerpPose(a, b, t) {
     return out;
 }
 
-// ANIMS: name -> { frames, fps, loop, priority }
+// ANIMS: name -> { frames, fps, loop, interruptible }
 var ANIMS = {};
 
 var animStates = [];
@@ -45,16 +41,11 @@ var BLEND_DURATION = 0.12;
 var figurePositions = [];
 var WALK_SPEED = 1.5;
 var X_MIN = -4.0;
-var X_MAX =  4.0;
+var X_MAX = 4.0;
 
 // stunTimers[f] > 0 means figure f cannot act (seconds remaining).
 var stunTimers = [];
 
-// hitFlashTimers[f] true while figure f should render white.
-var hitFlashTimers = [];
-
-// hitFreeze true while the canvas should be frozen after a hit.
-var hitFreeze = false;
 
 function initAnimPlayer() {
     registerAnimations();
@@ -65,37 +56,36 @@ function initAnimPlayer() {
     for (var f = 0; f < numFigures; f++) {
         figurePositions.push(root_offsets[f] ? root_offsets[f][0] : 0);
         animStates.push({
-            name:          "idle",
-            frame:         0,
-            blendFrom:     ANIMS["idle"].frames[0].slice(),
-            blendT:        1,
-            blendDuration: BLEND_DURATION,
-            priority:      0
+            name: "idle",
+            frame: 0,
+            blendFrom: ANIMS["idle"].frames[0].slice(),
+            blendT: 1,
+            blendDuration: BLEND_DURATION
         });
         stunTimers.push(0);
         hitFlashTimers.push(false);
     }
 }
 
-// Switch figure f to the named animation if its priority allows.
 function requestAnim(f, name) {
     var state = animStates[f];
-    var anim  = ANIMS[name];
-    if (!anim || !state)          return;
-    if (state.name === name)      return;
-    if (anim.priority < state.priority) return;
+    var anim = ANIMS[name];
+    if (!anim || !state)     return;
+    if (state.name === name) return;
 
-    state.blendFrom     = getCurrentPose(f);
-    state.blendT        = 0;
+    var current = ANIMS[state.name];
+    if (current && !current.interruptible) return;
+
+    state.blendFrom = getCurrentPose(f);
+    state.blendT = 0;
     state.blendDuration = BLEND_DURATION;
-    state.name          = name;
-    state.frame         = 0;
-    state.priority      = anim.priority;
+    state.name = name;
+    state.frame = 0;
 }
 
 function advanceAnimState(f, dt) {
     var state = animStates[f];
-    var anim  = ANIMS[state.name];
+    var anim = ANIMS[state.name];
     if (!anim) return;
 
     if (state.blendT < 1) {
@@ -110,32 +100,29 @@ function advanceAnimState(f, dt) {
     } else {
         if (state.frame >= frameCount - 1) {
             state.frame = frameCount - 1;
-            if (state.name !== "idle") {
-                state.blendFrom     = getCurrentPose(f);
-                state.blendT        = 0;
-                state.blendDuration = BLEND_DURATION;
-                state.name          = "idle";
-                state.frame         = 0;
-                state.priority      = ANIMS["idle"].priority;
-            }
+            state.blendFrom = getCurrentPose(f);
+            state.blendT = 0;
+            state.blendDuration = BLEND_DURATION;
+            state.name = "idle";
+            state.frame = 0;
         }
     }
 }
 
 function getCurrentPose(f) {
     var state = animStates[f];
-    var anim  = ANIMS[state.name];
+    var anim = ANIMS[state.name];
     if (!anim) return ANIMS["idle"].frames[0].slice();
 
     var frameCount = anim.frames.length;
-    var fi  = Math.floor(state.frame) % frameCount;
+    var fi = Math.floor(state.frame) % frameCount;
     var fi1 = (fi + 1) % frameCount;
-    var ft  = state.frame - Math.floor(state.frame);
+    var ft = state.frame - Math.floor(state.frame);
 
     var pose = lerpPose(anim.frames[fi], anim.frames[fi1], ft);
 
     if (state.blendT < 1) {
-        pose = lerpPose(state.blendFrom, pose, smoothstep(state.blendT));
+        pose = lerpPose(state.blendFrom, pose, state.blendT);
     }
 
     return pose;

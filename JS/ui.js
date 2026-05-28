@@ -30,6 +30,23 @@ window.addEventListener('keyup', function (e) {
     }
 });
 
+function updateHealthUI(player) {
+    var id = player === 1 ? 'p1-health-fill' : 'p2-health-fill';
+    var hp = player === 1 ? game.p1Health : game.p2Health;
+    var el = document.getElementById(id);
+    if (!el) return;
+
+    el.style.width = (hp / MAX_HEALTH * 100) + '%';
+    el.className = 'health-fill';
+    if (hp <= 25) el.classList.add('low');
+    else if (hp <= 50) el.classList.add('medium');
+}
+
+function updateTimerUI() {
+    var el = document.getElementById('timer-display');
+    if (el) el.textContent = game.timeRemaining;
+}
+
 // flash the health bar shadow white while the player is being hit
 function setPlayerHitUI(player, isHit) {
     var el = document.getElementById(player === 1 ? 'p1-health-shadow' : 'p2-health-shadow');

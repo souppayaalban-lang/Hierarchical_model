@@ -2,6 +2,12 @@
 
 var keys = {};
 
+// hitFlashTimers[f] true while figure f should render white.
+var hitFlashTimers = [];
+
+// hitFreeze true while the canvas should be frozen after a hit.
+var hitFreeze = false;
+
 // max distance (x axis) between attacker and defender for a hit to land
 var HIT_RANGE = 1.25;
 
@@ -31,26 +37,19 @@ function tryHit(attackerIdx, animName) {
     stunTimers[defenderIdx] = STUN_DURATION;
     setPlayerStunUI(defenderIdx + 1, true);
     hitFlashTimers[defenderIdx] = true;
-    // Force the "hit" animation on the defender so it plays HIT_F1
-    animStates[defenderIdx].priority = -1;  // lower priority so requestAnim can override
     requestAnim(defenderIdx, "hit");
-    animStates[defenderIdx].blendT = 1;     // snap to HIT_F1 instantly (skip blend)
+    animStates[defenderIdx].blendT = 1;  // snap to hit pose instantly
 
     setPlayerHitUI(defenderIdx + 1, true);
     var defIdx = defenderIdx;  // capture for closures
     if (HIT_FREEZE_ENABLED) {
-        // draw early to freeze frame on the hit pose
         requestAnimationFrame(function () { hitFreeze = true; });
         setTimeout(function () {
             hitFreeze = false;
-            // After freeze ends, transition defender back to idle
-            animStates[defIdx].priority = -1;
             requestAnim(defIdx, "idle");
         }, 250);
     } else {
-        // No freeze: go back to idle after a short delay matching the hit pose display
         setTimeout(function () {
-            animStates[defIdx].priority = -1;
             requestAnim(defIdx, "idle");
         }, 250);
     }
@@ -102,7 +101,7 @@ function processInput(dt) {
     }
 
     // P2: J = move left, L = move right (P2 faces -X so left = forward)
-    if (numFigures > 1 && animStates[1] && !stunTimers[1]) {
+    if (!stunTimers[1]) {
         var p2Left = !!keys["KeyJ"];
         var p2Right = !!keys["KeyL"];
 

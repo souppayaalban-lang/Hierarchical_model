@@ -112,16 +112,6 @@ var HIGHKICK_F1 = pose({
     pelvisY: -0.02
 });
 
-var HIGHKICK_F1 = pose({
-    root: [0, -20, 5],
-    spine: [0, 40, 40], torso: 30, head: [0, 0, 0],
-    lShoulder: [20, -10, 0], lElbow: -150,
-    rShoulder: [-20, -10, 0], rElbow: -120,
-    lHip: [100, 0, 0], lKnee: 120,
-    rHip: [0, 0, 30], rKnee: 10,
-    pelvisY: -0.02
-});
-
 var HIT_F1 = pose({
     root: [0, 90, 0],
     spine: [-10, 0, -80], torso: 30, head: [0, 0, 0],
@@ -138,42 +128,42 @@ function registerAnimations() {
         frames: [IDLE_F0, IDLE_F1],
         fps: 2,
         loop: true,
-        priority: 0,
+        interruptible: true,
         ikGround: { LeftFoot: true, RightFoot: true }
     };
     ANIMS["walk_fwd"] = {
         frames: [IDLE_F0, WALK_F1],
         fps: 4,
         loop: true,
-        priority: 0,
+        interruptible: true,
         ikGround: { LeftFoot: true, RightFoot: true }
     };
     ANIMS["walk_back"] = {
         frames: [IDLE_F0, WALK_F2],
         fps: 4,
         loop: true,
-        priority: 0,
+        interruptible: true,
         ikGround: { LeftFoot: true, RightFoot: true }
     };
     ANIMS["hit"] = {
         frames: [HIT_F1],
         fps: 1,
         loop: true,
-        priority: 3,
+        interruptible: true,
         ikGround: { LeftFoot: true, RightFoot: true }
     };
     ANIMS["jab"] = {
         frames: [IDLE_F0, JAB_F1],
         fps: 8,
         loop: false,
-        priority: 2,
+        interruptible: false,
         ikGround: { LeftFoot: true, RightFoot: true }
     };
     ANIMS["hi_kick"] = {
         frames: [IDLE_F0, HIGHKICK_F1, HIGHKICK_F0, HIGHKICK_F0, HIGHKICK_F1],
         fps: 8,
         loop: false,
-        priority: 2,
+        interruptible: false,
         ikGround: { LeftFoot: false, RightFoot: true }  // lHip = kick (libre), rHip = appui (ancré)
     };
 }
