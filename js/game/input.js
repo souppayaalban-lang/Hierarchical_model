@@ -35,37 +35,71 @@ function getAttackStun(baseAttack) {
     return animDuration + recovery;
 }
 
-var COMBO_CHAINS = {
-    "jab": ["jab", "jab_2"],
-    "hi_kick": ["hi_kick"]         // extend with "hi_kick_2", etc.
+// ── Combo Tree ──────────────────────────────────────────────────────
+// Each node: { anim: "animation_name", next: { "input": node, ... } }
+// "next" maps the NEXT base-attack input to its follow-up node.
+// To add a new combo route, just add a branch in the tree.
+var COMBO_TREE = {
+    "jab": {
+        anim: "jab",
+        next: {
+            "jab": {
+                anim: "jab_2", next: {
+                    "hi_kick": { anim: "hi_kick", next: {} },
+                    "jab": { anim: "hit", next: {} }
+                }
+            },
+            "hi_kick": { anim: "hi_kick", next: {} }
+        }
+    },
+    "hi_kick": {
+        anim: "hi_kick",
+        next: {
+            "jab": { anim: "jab", next: {} },
+            "hi_kick": { anim: "hi_kick", next: {} }
+        }
+    }
 };
 
-// Returns the correct animation name for an attack considering the combo chain.
+// Returns true if figure f can combo into baseAttack right now.
+function canCombo(f, baseAttack) {
+    var combo = comboStates[f];
+    return combo.windowOpen && combo.node && combo.node.next[baseAttack];
+}
+
+// Returns the correct animation name, navigating the combo tree.
 function getComboAnim(f, baseAttack) {
     var combo = comboStates[f];
-    var chain = COMBO_CHAINS[baseAttack];
-    if (!chain) return baseAttack;
 
-    if (combo.windowOpen) {
-        combo.count++;
+    if (canCombo(f, baseAttack)) {
+        // Follow the tree branch
+        combo.node = combo.node.next[baseAttack];
         clearTimeout(combo.windowTimer);
         combo.windowOpen = false;
-        var idx = Math.min(combo.count, chain.length - 1);
-        return chain[idx];
+        return combo.node.anim;
     } else {
-        combo.count = 0;
-        return chain[0];
+        // Fresh attack — start at the tree root
+        combo.node = COMBO_TREE[baseAttack] || null;
+        combo.windowOpen = false;
+        clearTimeout(combo.windowTimer);
+        return combo.node ? combo.node.anim : baseAttack;
     }
 }
 
 // Opens the combo window for figure f after a successful hit.
+// Only opens if the current tree node has at least one follow-up.
 function openComboWindow(f) {
     var combo = comboStates[f];
+    if (!combo.node || !combo.node.next) { combo.node = null; return; }
+    var hasNext = false;
+    for (var k in combo.node.next) { hasNext = true; break; }
+    if (!hasNext) { combo.node = null; return; }
+
     combo.windowOpen = true;
     clearTimeout(combo.windowTimer);
     combo.windowTimer = setTimeout(function () {
         combo.windowOpen = false;
-        combo.count = 0;
+        combo.node = null;
     }, COMBO_WINDOW);
 }
 
@@ -112,10 +146,10 @@ window.addEventListener("keydown", function (e) {
     keys[e.code] = true;
 
     if (!wasDown) {
-        if (e.code === "KeyQ" && (!stunTimers[0] || comboStates[0].windowOpen)) { requestAnim(0, getComboAnim(0, "jab")); setTimeout(function () { tryHit(0, "jab"); }, ATTACK_DELAY.jab); stunTimers[0] = getAttackStun("jab"); }
-        if (e.code === "KeyE" && (!stunTimers[0] || comboStates[0].windowOpen)) { requestAnim(0, getComboAnim(0, "hi_kick")); setTimeout(function () { tryHit(0, "hi_kick"); }, ATTACK_DELAY.hi_kick); stunTimers[0] = getAttackStun("hi_kick"); }
-        if (e.code === "KeyU" && (!stunTimers[1] || comboStates[1].windowOpen)) { requestAnim(1, getComboAnim(1, "jab")); setTimeout(function () { tryHit(1, "jab"); }, ATTACK_DELAY.jab); stunTimers[1] = getAttackStun("jab"); }
-        if (e.code === "KeyO" && (!stunTimers[1] || comboStates[1].windowOpen)) { requestAnim(1, getComboAnim(1, "hi_kick")); setTimeout(function () { tryHit(1, "hi_kick"); }, ATTACK_DELAY.hi_kick); stunTimers[1] = getAttackStun("hi_kick"); }
+        if (e.code === "KeyQ" && (!stunTimers[0] || canCombo(0, "jab"))) { requestAnim(0, getComboAnim(0, "jab")); setTimeout(function () { tryHit(0, "jab"); }, ATTACK_DELAY.jab); stunTimers[0] = getAttackStun("jab"); }
+        if (e.code === "KeyE" && (!stunTimers[0] || canCombo(0, "hi_kick"))) { requestAnim(0, getComboAnim(0, "hi_kick")); setTimeout(function () { tryHit(0, "hi_kick"); }, ATTACK_DELAY.hi_kick); stunTimers[0] = getAttackStun("hi_kick"); }
+        if (e.code === "KeyU" && (!stunTimers[1] || canCombo(1, "jab"))) { requestAnim(1, getComboAnim(1, "jab")); setTimeout(function () { tryHit(1, "jab"); }, ATTACK_DELAY.jab); stunTimers[1] = getAttackStun("jab"); }
+        if (e.code === "KeyO" && (!stunTimers[1] || canCombo(1, "hi_kick"))) { requestAnim(1, getComboAnim(1, "hi_kick")); setTimeout(function () { tryHit(1, "hi_kick"); }, ATTACK_DELAY.hi_kick); stunTimers[1] = getAttackStun("hi_kick"); }
     }
 });
 

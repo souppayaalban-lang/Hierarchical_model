@@ -67,7 +67,7 @@ function initAnimPlayer() {
         });
         stunTimers.push(0);
         hitFlashTimers.push(false);
-        comboStates.push({ count: 0, windowOpen: false, windowTimer: null });
+        comboStates.push({ node: null, windowOpen: false, windowTimer: null });
 
     }
 }
