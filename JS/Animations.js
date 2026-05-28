@@ -49,25 +49,17 @@ var IDLE_F1 = pose({
     pelvisY: -0.3
 });
 
-var WALK_F0 = pose({
+// Forward SideStep
+var WALK_F1 = pose({
     root: [0, 90, 0],
-    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
+    spine: [10, 0, 0], torso: 40, head: [0, 0, 0],
     lShoulder: [20, -10, 0], lElbow: -150,
     rShoulder: [-20, -10, 0], rElbow: -120,
-    lHip: [0, -20, 0], lKnee: 0,
-    rHip: [0, 20, 0], rKnee: 0,
-    pelvisY: -0.1
+    lHip: [0, -10, 0], lKnee: 0,
+    rHip: [0, 0, 0], rKnee: 0,
+    pelvisY: -0.5
 });
 
-var JAB_F0 = pose({
-    root: [0, 90, 0],
-    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
-    lShoulder: [20, -10, 0], lElbow: -150,
-    rShoulder: [-20, -10, 0], rElbow: -120,
-    lHip: [0, -20, 0], lKnee: 0,
-    rHip: [0, 20, 0], rKnee: 0,
-    pelvisY: -0.1
-});
 // Jab Gauche
 var JAB_F1 = pose({
     root: [0, 90, 0],
@@ -88,8 +80,10 @@ var JAB_F2 = pose({
     rHip: [0, 20, 0], rKnee: 0,
     pelvisY: -0.1
 });
+
+// Final stance HighKick
 var HIGHKICK_F0 = pose({
-    root: [0, -20, 0],
+    root: [0, -20, 10],
     spine: [0, 40, 20], torso: 30, head: [0, 0, 0],
     lShoulder: [20, -10, 0], lElbow: -150,
     rShoulder: [-20, -10, 0], rElbow: -120,
@@ -98,13 +92,33 @@ var HIGHKICK_F0 = pose({
     pelvisY: -0.02
 });
 var HIGHKICK_F1 = pose({
-    root: [0, -20, 0],
+    root: [0, -20, 5],
     spine: [0, 40, 40], torso: 30, head: [0, 0, 0],
     lShoulder: [20, -10, 0], lElbow: -150,
     rShoulder: [-20, -10, 0], rElbow: -120,
     lHip: [100, 0, 0], lKnee: 120,
     rHip: [0, 0, 30], rKnee: 10,
     pelvisY: -0.02
+});
+
+var HIGHKICK_F1 = pose({
+    root: [0, -20, 5],
+    spine: [0, 40, 40], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [-20, -10, 0], rElbow: -120,
+    lHip: [100, 0, 0], lKnee: 120,
+    rHip: [0, 0, 30], rKnee: 10,
+    pelvisY: -0.02
+});
+
+var HIT_F1 = pose({
+    root: [0, 90, 0],
+    spine: [-10, 0, -80], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, 0, 50], lElbow: -120,
+    rShoulder: [-20, -10, 0], rElbow: -80,
+    lHip: [0, -20, 0], lKnee: 0,
+    rHip: [0, 20, 0], rKnee: 0,
+    pelvisY: -0.1
 });
 
 
@@ -117,14 +131,21 @@ function registerAnimations() {
         ikGround: { LeftFoot: true, RightFoot: true }
     };
     ANIMS["walk_fwd"] = {
-        frames: [WALK_F0],
-        fps: 1,
+        frames: [IDLE_F0, WALK_F1],
+        fps: 4,
         loop: true,
         priority: 0,
         ikGround: { LeftFoot: true, RightFoot: true }
     };
+    ANIMS["hit"] = {
+        frames: [HIT_F1],
+        fps: 1,
+        loop: true,
+        priority: 3,
+        ikGround: { LeftFoot: true, RightFoot: true }
+    };
     ANIMS["jab"] = {
-        frames: [JAB_F0, JAB_F2],
+        frames: [IDLE_F0, JAB_F1],
         fps: 8,
         loop: false,
         priority: 2,
@@ -137,9 +158,4 @@ function registerAnimations() {
         priority: 2,
         ikGround: { LeftFoot: false, RightFoot: true }  // lHip = kick (libre), rHip = appui (ancré)
     };
-
-    // Uncomment when implemented
-    // ANIMS["jab"]     = { frames: [...], fps: 18, loop: false, priority: 2 };
-    // ANIMS["hi_kick"] = { frames: [...], fps: 18, loop: false, priority: 2 };
-    // ANIMS["hit"]     = { frames: [...], fps: 16, loop: false, priority: 3 };
 }

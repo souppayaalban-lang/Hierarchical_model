@@ -31,13 +31,30 @@ function tryHit(attackerIdx, animName) {
     stunTimers[defenderIdx] = STUN_DURATION;
     setPlayerStunUI(defenderIdx + 1, true);
     hitFlashTimers[defenderIdx] = true;
+    // Force the "hit" animation on the defender so it plays HIT_F1
+    animStates[defenderIdx].priority = -1;  // lower priority so requestAnim can override
+    requestAnim(defenderIdx, "hit");
+    animStates[defenderIdx].blendT = 1;     // snap to HIT_F1 instantly (skip blend)
+
     setPlayerHitUI(defenderIdx + 1, true);
+    var defIdx = defenderIdx;  // capture for closures
     if (HIT_FREEZE_ENABLED) {
-        // draw early to freeze frame on hit
+        // draw early to freeze frame on the hit pose
         requestAnimationFrame(function () { hitFreeze = true; });
-        setTimeout(function () { hitFreeze = false; }, 250);
+        setTimeout(function () {
+            hitFreeze = false;
+            // After freeze ends, transition defender back to idle
+            animStates[defIdx].priority = -1;
+            requestAnim(defIdx, "idle");
+        }, 250);
+    } else {
+        // No freeze: go back to idle after a short delay matching the hit pose display
+        setTimeout(function () {
+            animStates[defIdx].priority = -1;
+            requestAnim(defIdx, "idle");
+        }, 250);
     }
-    setTimeout(function () { hitFlashTimers[defenderIdx] = false; setPlayerHitUI(defenderIdx + 1, false); }, 250);
+    setTimeout(function () { hitFlashTimers[defIdx] = false; setPlayerHitUI(defIdx + 1, false); }, 250);
 }
 
 window.addEventListener("keydown", function (e) {
