@@ -46,6 +46,8 @@ var X_MAX = 4.0;
 // stunTimers[f] > 0 means figure f cannot act (seconds remaining).
 var stunTimers = [];
 
+var comboStates = [];
+
 
 function initAnimPlayer() {
     registerAnimations();
@@ -53,6 +55,7 @@ function initAnimPlayer() {
     figurePositions = [];
     animStates = [];
     stunTimers = [];
+    comboStates = [];
     for (var f = 0; f < numFigures; f++) {
         figurePositions.push(root_offsets[f] ? root_offsets[f][0] : 0);
         animStates.push({
@@ -64,13 +67,15 @@ function initAnimPlayer() {
         });
         stunTimers.push(0);
         hitFlashTimers.push(false);
+        comboStates.push({ count: 0, windowOpen: false, windowTimer: null });
+
     }
 }
 
 function requestAnim(f, name) {
     var state = animStates[f];
     var anim = ANIMS[name];
-    if (!anim || !state)     return;
+    if (!anim || !state) return;
     if (state.name === name) return;
 
     var current = ANIMS[state.name];

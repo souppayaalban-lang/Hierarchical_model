@@ -21,6 +21,43 @@ var ATTACK_DELAY = { jab: 100, hi_kick: 250 };
 var STUN_DURATION = 0.10;
 var HIT_FREEZE_ENABLED = true;
 
+var COMBO_WINDOW = 50;  // ms – time after hit freeze to chain the next attack
+var ATTACK_SELF_STUN = 0.5;  // seconds – attacker can't act after attacking (bypassed by combos)
+
+var COMBO_CHAINS = {
+    "jab": ["jab", "jab_2"],
+    "hi_kick": ["hi_kick"]         // extend with "hi_kick_2", etc.
+};
+
+// Returns the correct animation name for an attack considering the combo chain.
+function getComboAnim(f, baseAttack) {
+    var combo = comboStates[f];
+    var chain = COMBO_CHAINS[baseAttack];
+    if (!chain) return baseAttack;
+
+    if (combo.windowOpen) {
+        combo.count++;
+        clearTimeout(combo.windowTimer);
+        combo.windowOpen = false;
+        var idx = Math.min(combo.count, chain.length - 1);
+        return chain[idx];
+    } else {
+        combo.count = 0;
+        return chain[0];
+    }
+}
+
+// Opens the combo window for figure f after a successful hit.
+function openComboWindow(f) {
+    var combo = comboStates[f];
+    combo.windowOpen = true;
+    clearTimeout(combo.windowTimer);
+    combo.windowTimer = setTimeout(function () {
+        combo.windowOpen = false;
+        combo.count = 0;
+    }, COMBO_WINDOW);
+}
+
 // apply damage + stun if in range
 function tryHit(attackerIdx, animName) {
     if (numFigures < 2) return;
@@ -42,15 +79,18 @@ function tryHit(attackerIdx, animName) {
 
     setPlayerHitUI(defenderIdx + 1, true);
     var defIdx = defenderIdx;  // capture for closures
+    var atkIdx = attackerIdx;
     if (HIT_FREEZE_ENABLED) {
         requestAnimationFrame(function () { hitFreeze = true; });
         setTimeout(function () {
             hitFreeze = false;
             requestAnim(defIdx, "idle");
+            openComboWindow(atkIdx);
         }, 250);
     } else {
         setTimeout(function () {
             requestAnim(defIdx, "idle");
+            openComboWindow(atkIdx);
         }, 250);
     }
     setTimeout(function () { hitFlashTimers[defIdx] = false; setPlayerHitUI(defIdx + 1, false); }, 250);
@@ -61,10 +101,10 @@ window.addEventListener("keydown", function (e) {
     keys[e.code] = true;
 
     if (!wasDown) {
-        if (e.code === "KeyQ" && !stunTimers[0]) { requestAnim(0, "jab"); setTimeout(function () { tryHit(0, "jab"); }, ATTACK_DELAY.jab); } // setTimeout to account for the travel of the punch
-        if (e.code === "KeyE" && !stunTimers[0]) { requestAnim(0, "hi_kick"); setTimeout(function () { tryHit(0, "hi_kick"); }, ATTACK_DELAY.hi_kick); }
-        if (e.code === "KeyU" && !stunTimers[1]) { requestAnim(1, "jab"); setTimeout(function () { tryHit(1, "jab"); }, ATTACK_DELAY.jab); }
-        if (e.code === "KeyO" && !stunTimers[1]) { requestAnim(1, "hi_kick"); setTimeout(function () { tryHit(1, "hi_kick"); }, ATTACK_DELAY.hi_kick); }
+        if (e.code === "KeyQ" && (!stunTimers[0] || comboStates[0].windowOpen)) { requestAnim(0, getComboAnim(0, "jab")); setTimeout(function () { tryHit(0, "jab"); }, ATTACK_DELAY.jab); stunTimers[0] = ATTACK_SELF_STUN; }
+        if (e.code === "KeyE" && (!stunTimers[0] || comboStates[0].windowOpen)) { requestAnim(0, getComboAnim(0, "hi_kick")); setTimeout(function () { tryHit(0, "hi_kick"); }, ATTACK_DELAY.hi_kick); stunTimers[0] = ATTACK_SELF_STUN; }
+        if (e.code === "KeyU" && (!stunTimers[1] || comboStates[1].windowOpen)) { requestAnim(1, getComboAnim(1, "jab")); setTimeout(function () { tryHit(1, "jab"); }, ATTACK_DELAY.jab); stunTimers[1] = ATTACK_SELF_STUN; }
+        if (e.code === "KeyO" && (!stunTimers[1] || comboStates[1].windowOpen)) { requestAnim(1, getComboAnim(1, "hi_kick")); setTimeout(function () { tryHit(1, "hi_kick"); }, ATTACK_DELAY.hi_kick); stunTimers[1] = ATTACK_SELF_STUN; }
     }
 });
 

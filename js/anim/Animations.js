@@ -159,6 +159,13 @@ function registerAnimations() {
         interruptible: false,
         ikGround: { LeftFoot: true, RightFoot: true }
     };
+    ANIMS["jab_2"] = {
+        frames: [IDLE_F0, JAB_F2],
+        fps: 8,
+        loop: false,
+        interruptible: false,
+        ikGround: { LeftFoot: true, RightFoot: true }
+    };
     ANIMS["hi_kick"] = {
         frames: [IDLE_F0, HIGHKICK_F1, HIGHKICK_F0, HIGHKICK_F0, HIGHKICK_F1],
         fps: 8,
