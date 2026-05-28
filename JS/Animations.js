@@ -60,6 +60,17 @@ var WALK_F1 = pose({
     pelvisY: -0.5
 });
 
+// Backward SideStep
+var WALK_F2 = pose({
+    root: [0, 90, 0],
+    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [-20, -10, 0], rElbow: -120,
+    lHip: [0, 0, 0], lKnee: 0,
+    rHip: [0, -20, 0], rKnee: 0,
+    pelvisY: -0.3
+});
+
 // Jab Gauche
 var JAB_F1 = pose({
     root: [0, 90, 0],
@@ -132,6 +143,13 @@ function registerAnimations() {
     };
     ANIMS["walk_fwd"] = {
         frames: [IDLE_F0, WALK_F1],
+        fps: 4,
+        loop: true,
+        priority: 0,
+        ikGround: { LeftFoot: true, RightFoot: true }
+    };
+    ANIMS["walk_back"] = {
+        frames: [IDLE_F0, WALK_F2],
         fps: 4,
         loop: true,
         priority: 0,
