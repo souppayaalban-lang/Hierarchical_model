@@ -24,11 +24,9 @@ function pose(p) {
         v1(p.rKnee),
         lHip[0], lHip[1], lHip[2],
         v1(p.lKnee),
-        v1(p.pelvisY)    // index 26: vertical offset of the pelvis (FK height control)
+        v1(p.pelvisY)
     ];
 }
-
-// Penser à inverser la logique Droite = Gauche et inversement
 
 var IDLE_F0 = pose({
     root: [0, 90, 0],
@@ -112,6 +110,7 @@ var HIGHKICK_F1 = pose({
     pelvisY: -0.02
 });
 
+// Hit frame
 var HIT_F1 = pose({
     root: [0, 90, 0],
     spine: [-10, 0, -80], torso: 30, head: [0, 0, 0],
@@ -171,6 +170,6 @@ function registerAnimations() {
         fps: 8,
         loop: false,
         interruptible: false,
-        ikGround: { LeftFoot: false, RightFoot: true }  // lHip = kick (libre), rHip = appui (ancré)
+        ikGround: { LeftFoot: false, RightFoot: true }
     };
 }

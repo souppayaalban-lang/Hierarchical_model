@@ -5,7 +5,7 @@ window.onload = function init() {
         this.alert("WebGL is not avaiable");
     }
 
-    vertices = initVertices(); // Faudra la faire la fonction
+    vertices = initVertices();
 
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.30, 0.30, 0.30, 1.0);
@@ -366,7 +366,7 @@ function initFigures() {
         for (var i = 0; i < numNodes; i++) {
             figures[f][i] = createNode(null, null, null, null);
         }
-        thetas[f] = defaultTheta2.slice();
+        thetas[f] = defaultTheta.slice();
         initFigure(figures[f], thetas[f]);
     }
 }
@@ -377,15 +377,12 @@ function initFigure(figure, theta) {
     }
 }
 
-// Removed foot-angle slots (previously indices 26/27). Pelvis Y moved to index 26.
-var defaultTheta = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -20, 0, 0, 0, 20, 0, 0, 0, -10, 0, 0, 0, 10, 0, 0, 0, 0];
-var defaultTheta2 = [0, 0, 0, 0, 90, 0, 0, 0, 0, 0, -20, -20, 0, -120, 20, 30, 0, -120, -10, 0, 0, 0, 10, 0, 0, 0, 0];
-
+var defaultTheta = new Array(26).fill(0);
 
 // Initialization of the Hierarchical Model
 function initNodes(id, figure, theta) {
     var m = mat4();
-    var pelvisY = theta[26] || 0;  // FK pelvis height offset (shifted after foot removal)
+    var pelvisY = theta[26] || 0;
     switch (id) {
         case ID_Root:
             if (pelvisY !== 0) {

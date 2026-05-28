@@ -69,22 +69,16 @@ var spine_offset_y = 0;
 var shoulder_offset_y = torse_height - 2 * torso_radius;
 var head_offset_y = shoulder_offset_y + head_height / 2;
 
-// Directional sun light in world space (points toward the letters)
 var lightPosition = vec4(-2.5, 2.5, 4.0, 0.0); var lightPositionLoc;
-// Light color from the non seen side
 var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0); var AmbientProductLoc; var AmbientProduct;
-// Light color on the seen face (Color diffusion)
 var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0); var DiffuseProductLoc; var DiffuseProduct;
-// Light color of the fixed point illuminated by the light (White reflection)
 var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0); var SpecularProductLoc; var SpecularProduct;
 
-// white base so the shader tintColor (purple/orange per player) is the only color source.
 var materialAmbient = vec4(1.0, 1.0, 1.0, 1.0);
 var materialDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 var materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 var materialShininess = 200.0; var ShininessLoc;
 
-// per-player tint colors (match UI css variables --p1-color and --p2-color)
 var PLAYER_DIFFUSE = [
     vec4(0.61, 0.35, 0.71, 1.0),  // P1 purple
     vec4(0.88, 0.48, 0.22, 1.0)   // P2 orange
