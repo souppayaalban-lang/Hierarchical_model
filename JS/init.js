@@ -484,8 +484,19 @@ function updateAnimation(dt) {
         if (root_offsets[f]) root_offsets[f][0] = figurePositions[f];
         advanceAnimState(f, dt);
         var pose = getCurrentPose(f);
-        if (f === 1) pose = mirrorPose(pose);
-        pose = clampPoseToGround(f, pose);
+
+        // Lire le ikGround de l'animation courante (défaut : les deux pieds ancrés)
+        var animName = animStates[f].name;
+        var anim = ANIMS[animName];
+        var ikCfg = (anim && anim.ikGround) ? anim.ikGround : null;
+
+        if (f === 1) {
+            pose = mirrorPose(pose);
+            // mirrorPose intervertit gauche/droite → faire de même pour ikGround
+            if (ikCfg) ikCfg = { LeftFoot: ikCfg.RightFoot, RightFoot: ikCfg.LeftFoot };
+        }
+
+        pose = solveFootIK(pose, f, ikCfg);
         initFigure(figures[f], pose);
     }
 }
