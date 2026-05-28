@@ -3,8 +3,8 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-    <link rel="stylesheet" href="../CSS/main.css">
-    <link rel="icon" href="../CSS/assets/kfx.ico" type="image/x-icon">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="icon" href="../css/assets/kfx.ico" type="image/x-icon">
     <title>Kinemastick Fighter X</title>
     <script id="vertex-shader" type="x-shader/x-vertex">
             attribute vec4 vPosition;
@@ -71,17 +71,17 @@
 
 
     <div id="logo">Game Logo</div>
-    <script type="text/javascript" src="../Common/webgl-utils.js"></script>
-    <script type="text/javascript" src="../Common/initShaders.js"></script>
-    <script type="text/javascript" src="../Common/MV.js"></script>
-    <script type="text/javascript" src="../JS/Utils.js"></script>
-    <script type="text/javascript" src="../JS/init.js"></script>
-    <script type="text/javascript" src="../JS/ui.js"></script>
-    <script type="text/javascript" src="../JS/coregame.js"></script>
-    <script type="text/javascript" src="../JS/AnimPlayer.js"></script>
-    <script type="text/javascript" src="../JS/Animations.js"></script>
-    <script type="text/javascript" src="../JS/IKSolver.js"></script>
-    <script type="text/javascript" src="../JS/Input.js"></script>
+    <script type="text/javascript" src="../common/webgl-utils.js"></script>
+    <script type="text/javascript" src="../common/initShaders.js"></script>
+    <script type="text/javascript" src="../common/MV.js"></script>
+    <script type="text/javascript" src="../js/core/utils.js"></script>
+    <script type="text/javascript" src="../js/core/init.js"></script>
+    <script type="text/javascript" src="../js/game/ui.js"></script>
+    <script type="text/javascript" src="../js/game/game.js"></script>
+    <script type="text/javascript" src="../js/anim/AnimPlayer.js"></script>
+    <script type="text/javascript" src="../js/anim/Animations.js"></script>
+    <script type="text/javascript" src="../js/anim/IKSolver.js"></script>
+    <script type="text/javascript" src="../js/game/input.js"></script>
 </head>
 
 <body>
@@ -133,7 +133,7 @@
 
         <!-- Center column: logo + canvas -->
         <div id="center-col">
-        <img id="logo" src="../CSS/assets/kinemastick-fighter-X.png" alt="Kinemastick Fighter X">
+        <img id="logo" src="../css/assets/kinemastick-fighter-X.png" alt="Kinemastick Fighter X">
         <div id="canvas-area">
             <div id="hud-bar">
                 <div id="p1-health-shadow" class="health-bar-shadow p1-shadow">

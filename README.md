@@ -1,16 +1,37 @@
-# Hierarchical_model
+<p align="center">
+  <img src="css/assets/kinemastick-fighter-X.png" alt="Kinemastick Fighter X" width="480">
+</p>
 
-Structure du stickman :
--                                    Torse
--     Tête      Bras Gauche       Bras Droite       Cuisse Gauche       Cuisse Droite
--            Avant-Bras Gauche Avant-Bras Droite    Tibia Gauche        Tibia Droite
+<p align="center"><em>2-player WebGL fighting game built on a hierarchical skeleton model</em></p>
 
-Joints :
-- Torse -> Bras (Epaule) = Ball & Socket
-- Torse -> Cuisse (Hanche) = Ball & Socket
-- Torse -> Tête (Cou) = A voir ce qu'on veut faire avec la tête, Ball & Socket ou Hinge
+---
 
-- Bras -> Avant-bras (Coude) = Hinge, mais en théorie on peut bouger sous 2 axes mais on a pas vu en cours
-- Cuisse -> Tibia (Genou) = Hinge 
+## play
 
-(Je pense qu'on peut même faire les pieds mais à voir si c'est nécessaire)
+open `html/index.html` in a browser.
+
+## controls
+
+| | player 1 | player 2 |
+|---|---|---|
+| move | A / D | J / L |
+| jab | Q | U |
+| kick | E | O |
+
+## stack
+
+- vanilla JS + WebGL
+- hierarchical skeleton with FK + foot IK
+- keyframe animation system with pose blending
+
+## project structure
+
+```
+js/
+  core/     # webgl setup, render loop
+  game/     # game state, input, ui
+  anim/     # animations, player, ik solver
+css/        # styles and assets
+html/       # entry point
+common/     # webgl utilities (MV.js, initShaders)
+```
