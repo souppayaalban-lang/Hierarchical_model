@@ -22,7 +22,18 @@ var STUN_DURATION = 0.10;
 var HIT_FREEZE_ENABLED = true;
 
 var COMBO_WINDOW = 50;  // ms – time after hit freeze to chain the next attack
-var ATTACK_SELF_STUN = 0.5;  // seconds – attacker can't act after attacking (bypassed by combos)
+
+// Recovery time (seconds) added AFTER the attack animation finishes.
+// Total self-stun = animation_duration + recovery.
+var ATTACK_RECOVERY = { jab: 0.35, hi_kick: 0.4 };
+
+// Computes total self-stun: animation duration + recovery time.
+function getAttackStun(baseAttack) {
+    var anim = ANIMS[baseAttack];
+    var animDuration = anim ? (anim.frames.length - 1) / anim.fps : 0;
+    var recovery = ATTACK_RECOVERY[baseAttack] || 0.3;
+    return animDuration + recovery;
+}
 
 var COMBO_CHAINS = {
     "jab": ["jab", "jab_2"],
@@ -101,10 +112,10 @@ window.addEventListener("keydown", function (e) {
     keys[e.code] = true;
 
     if (!wasDown) {
-        if (e.code === "KeyQ" && (!stunTimers[0] || comboStates[0].windowOpen)) { requestAnim(0, getComboAnim(0, "jab")); setTimeout(function () { tryHit(0, "jab"); }, ATTACK_DELAY.jab); stunTimers[0] = ATTACK_SELF_STUN; }
-        if (e.code === "KeyE" && (!stunTimers[0] || comboStates[0].windowOpen)) { requestAnim(0, getComboAnim(0, "hi_kick")); setTimeout(function () { tryHit(0, "hi_kick"); }, ATTACK_DELAY.hi_kick); stunTimers[0] = ATTACK_SELF_STUN; }
-        if (e.code === "KeyU" && (!stunTimers[1] || comboStates[1].windowOpen)) { requestAnim(1, getComboAnim(1, "jab")); setTimeout(function () { tryHit(1, "jab"); }, ATTACK_DELAY.jab); stunTimers[1] = ATTACK_SELF_STUN; }
-        if (e.code === "KeyO" && (!stunTimers[1] || comboStates[1].windowOpen)) { requestAnim(1, getComboAnim(1, "hi_kick")); setTimeout(function () { tryHit(1, "hi_kick"); }, ATTACK_DELAY.hi_kick); stunTimers[1] = ATTACK_SELF_STUN; }
+        if (e.code === "KeyQ" && (!stunTimers[0] || comboStates[0].windowOpen)) { requestAnim(0, getComboAnim(0, "jab")); setTimeout(function () { tryHit(0, "jab"); }, ATTACK_DELAY.jab); stunTimers[0] = getAttackStun("jab"); }
+        if (e.code === "KeyE" && (!stunTimers[0] || comboStates[0].windowOpen)) { requestAnim(0, getComboAnim(0, "hi_kick")); setTimeout(function () { tryHit(0, "hi_kick"); }, ATTACK_DELAY.hi_kick); stunTimers[0] = getAttackStun("hi_kick"); }
+        if (e.code === "KeyU" && (!stunTimers[1] || comboStates[1].windowOpen)) { requestAnim(1, getComboAnim(1, "jab")); setTimeout(function () { tryHit(1, "jab"); }, ATTACK_DELAY.jab); stunTimers[1] = getAttackStun("jab"); }
+        if (e.code === "KeyO" && (!stunTimers[1] || comboStates[1].windowOpen)) { requestAnim(1, getComboAnim(1, "hi_kick")); setTimeout(function () { tryHit(1, "hi_kick"); }, ATTACK_DELAY.hi_kick); stunTimers[1] = getAttackStun("hi_kick"); }
     }
 });
 
