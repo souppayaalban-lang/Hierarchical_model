@@ -146,10 +146,10 @@ window.addEventListener("keydown", function (e) {
     keys[e.code] = true;
 
     if (!wasDown) {
-        if (e.code === "KeyQ" && (!stunTimers[0] || canCombo(0, "jab"))) { requestAnim(0, getComboAnim(0, "jab")); setTimeout(function () { tryHit(0, "jab"); }, ATTACK_DELAY.jab); stunTimers[0] = getAttackStun("jab"); }
-        if (e.code === "KeyE" && (!stunTimers[0] || canCombo(0, "hi_kick"))) { requestAnim(0, getComboAnim(0, "hi_kick")); setTimeout(function () { tryHit(0, "hi_kick"); }, ATTACK_DELAY.hi_kick); stunTimers[0] = getAttackStun("hi_kick"); }
-        if (e.code === "KeyU" && (!stunTimers[1] || canCombo(1, "jab"))) { requestAnim(1, getComboAnim(1, "jab")); setTimeout(function () { tryHit(1, "jab"); }, ATTACK_DELAY.jab); stunTimers[1] = getAttackStun("jab"); }
-        if (e.code === "KeyO" && (!stunTimers[1] || canCombo(1, "hi_kick"))) { requestAnim(1, getComboAnim(1, "hi_kick")); setTimeout(function () { tryHit(1, "hi_kick"); }, ATTACK_DELAY.hi_kick); stunTimers[1] = getAttackStun("hi_kick"); }
+        if (e.code === "KeyQ" && !stunTimers[0] && (!attackCooldown[0] || canCombo(0, "jab"))) { requestAnim(0, getComboAnim(0, "jab")); setTimeout(function () { tryHit(0, "jab"); }, ATTACK_DELAY.jab); attackCooldown[0] = getAttackStun("jab"); }
+        if (e.code === "KeyE" && !stunTimers[0] && (!attackCooldown[0] || canCombo(0, "hi_kick"))) { requestAnim(0, getComboAnim(0, "hi_kick")); setTimeout(function () { tryHit(0, "hi_kick"); }, ATTACK_DELAY.hi_kick); attackCooldown[0] = getAttackStun("hi_kick"); }
+        if (e.code === "KeyU" && !stunTimers[1] && (!attackCooldown[1] || canCombo(1, "jab"))) { requestAnim(1, getComboAnim(1, "jab")); setTimeout(function () { tryHit(1, "jab"); }, ATTACK_DELAY.jab); attackCooldown[1] = getAttackStun("jab"); }
+        if (e.code === "KeyO" && !stunTimers[1] && (!attackCooldown[1] || canCombo(1, "hi_kick"))) { requestAnim(1, getComboAnim(1, "hi_kick")); setTimeout(function () { tryHit(1, "hi_kick"); }, ATTACK_DELAY.hi_kick); attackCooldown[1] = getAttackStun("hi_kick"); }
     }
 });
 
@@ -166,6 +166,9 @@ function processInput(dt) {
         if (stunTimers[f] > 0) {
             stunTimers[f] = Math.max(0, stunTimers[f] - dt);
             if (stunTimers[f] === 0) setPlayerStunUI(f + 1, false);
+        }
+        if (attackCooldown[f] > 0) {
+            attackCooldown[f] = Math.max(0, attackCooldown[f] - dt);
         }
     }
 

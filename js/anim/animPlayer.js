@@ -37,14 +37,17 @@ var animStates = [];
 
 var BLEND_DURATION = 0.12;
 
-// figurePositions[f] is the world X of figure f, written to root_offsets each frame.
+// figurePositions[f] is the world X of figure f, written to root_offsets each frame
 var figurePositions = [];
 var WALK_SPEED = 1.5;
 var X_MIN = -4.0;
 var X_MAX = 4.0;
 
-// stunTimers[f] > 0 means figure f cannot act (seconds remaining).
+// stunTimers[f] > 0: figure f was hit and cannot act
 var stunTimers = [];
+
+// attackCooldown[f] > 0: figure f is in attack recovery and cannot attack again
+var attackCooldown = [];
 
 var comboStates = [];
 
@@ -55,6 +58,7 @@ function initAnimPlayer() {
     figurePositions = [];
     animStates = [];
     stunTimers = [];
+    attackCooldown = [];
     comboStates = [];
     for (var f = 0; f < numFigures; f++) {
         figurePositions.push(root_offsets[f] ? root_offsets[f][0] : 0);
@@ -66,9 +70,9 @@ function initAnimPlayer() {
             blendDuration: BLEND_DURATION
         });
         stunTimers.push(0);
+        attackCooldown.push(0);
         hitFlashTimers.push(false);
         comboStates.push({ node: null, windowOpen: false, windowTimer: null });
-
     }
 }
 
