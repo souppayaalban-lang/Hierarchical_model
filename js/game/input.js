@@ -21,6 +21,10 @@ var ATTACK_DELAY = { jab: 100, hi_kick: 250 };
 var STUN_DURATION = 0.10;
 var HIT_FREEZE_ENABLED = true;
 
+var PARRY_STUN = 2.0;
+var PARRY_COOLDOWN = 5.0;
+var PARRY_WINDOW = 0.3;  // seconds the parry is active after pressing the key
+
 var COMBO_WINDOW = 50;  // ms – time after hit freeze to chain the next attack
 
 // Recovery time (seconds) added AFTER the attack animation finishes.
@@ -91,9 +95,7 @@ function getComboAnim(f, baseAttack) {
 function openComboWindow(f) {
     var combo = comboStates[f];
     if (!combo.node || !combo.node.next) { combo.node = null; return; }
-    var hasNext = false;
-    for (var k in combo.node.next) { hasNext = true; break; }
-    if (!hasNext) { combo.node = null; return; }
+    if (Object.keys(combo.node.next).length === 0) { combo.node = null; return; }
 
     combo.windowOpen = true;
     clearTimeout(combo.windowTimer);
@@ -103,11 +105,33 @@ function openComboWindow(f) {
     }, COMBO_WINDOW);
 }
 
+function activateParry(f) {
+    if (parryStates[f].cooldown > 0 || stunTimers[f] > 0) return;
+    parryStates[f].active = true;
+    clearTimeout(parryStates[f].windowTimer);
+    parryStates[f].windowTimer = setTimeout(function () {
+        parryStates[f].active = false;
+        parryStates[f].cooldown = PARRY_COOLDOWN;
+    }, PARRY_WINDOW * 1000);
+}
+
 // apply damage + stun if in range
 function tryHit(attackerIdx, animName) {
     if (numFigures < 2) return;
     var defenderIdx = 1 - attackerIdx;
-    if (stunTimers[defenderIdx] > 0) return;
+
+    if (parryStates[defenderIdx].active) {
+        stunTimers[attackerIdx] = PARRY_STUN;
+        setPlayerStunUI(attackerIdx + 1, true);
+        clearTimeout(parryStates[defenderIdx].windowTimer);
+        parryStates[defenderIdx].active = false;
+        parryStates[defenderIdx].cooldown = PARRY_COOLDOWN;
+        if (HIT_FREEZE_ENABLED) {
+            requestAnimationFrame(function () { hitFreeze = true; });
+            setTimeout(function () { hitFreeze = false; }, 250);
+        }
+        return;
+    }
 
     var distance = figurePositions[defenderIdx] - figurePositions[attackerIdx];
     // P1 (idx 0) must hit someone to the right; P2 (idx 1) must hit someone to the left.
@@ -150,6 +174,8 @@ window.addEventListener("keydown", function (e) {
         if (e.code === "KeyE" && !stunTimers[0] && (!attackCooldown[0] || canCombo(0, "hi_kick"))) { requestAnim(0, getComboAnim(0, "hi_kick")); setTimeout(function () { tryHit(0, "hi_kick"); }, ATTACK_DELAY.hi_kick); attackCooldown[0] = getAttackStun("hi_kick"); }
         if (e.code === "KeyU" && !stunTimers[1] && (!attackCooldown[1] || canCombo(1, "jab"))) { requestAnim(1, getComboAnim(1, "jab")); setTimeout(function () { tryHit(1, "jab"); }, ATTACK_DELAY.jab); attackCooldown[1] = getAttackStun("jab"); }
         if (e.code === "KeyO" && !stunTimers[1] && (!attackCooldown[1] || canCombo(1, "hi_kick"))) { requestAnim(1, getComboAnim(1, "hi_kick")); setTimeout(function () { tryHit(1, "hi_kick"); }, ATTACK_DELAY.hi_kick); attackCooldown[1] = getAttackStun("hi_kick"); }
+        if (e.code === "KeyS") activateParry(0);
+        if (e.code === "KeyK") activateParry(1);
     }
 });
 
@@ -170,6 +196,10 @@ function processInput(dt) {
         if (attackCooldown[f] > 0) {
             attackCooldown[f] = Math.max(0, attackCooldown[f] - dt);
         }
+        if (parryStates[f].cooldown > 0) {
+            parryStates[f].cooldown = Math.max(0, parryStates[f].cooldown - dt);
+        }
+        setParryCooldownUI(f + 1, parryStates[f].cooldown > 0);
     }
 
     // P1: A = move left, D = move right (blocked while stunned)

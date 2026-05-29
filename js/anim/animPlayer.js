@@ -51,6 +51,9 @@ var attackCooldown = [];
 
 var comboStates = [];
 
+// parryStates[f]: active = currently parrying, cooldown = seconds until can parry again
+var parryStates = [];
+
 
 function initAnimPlayer() {
     registerAnimations();
@@ -60,6 +63,7 @@ function initAnimPlayer() {
     stunTimers = [];
     attackCooldown = [];
     comboStates = [];
+    parryStates = [];
     for (var f = 0; f < numFigures; f++) {
         figurePositions.push(root_offsets[f] ? root_offsets[f][0] : 0);
         animStates.push({
@@ -73,6 +77,7 @@ function initAnimPlayer() {
         attackCooldown.push(0);
         hitFlashTimers.push(false);
         comboStates.push({ node: null, windowOpen: false, windowTimer: null });
+        parryStates.push({ active: false, cooldown: 0, windowTimer: null });
     }
 }
 

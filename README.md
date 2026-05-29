@@ -17,6 +17,7 @@ open `html/index.html` in a browser.
 | move | A / D | J / L |
 | jab | Q | U |
 | kick | E | O |
+| parry | S | K |
 
 ## stack
 
