@@ -112,12 +112,17 @@ function render(now) {
             var offset = root_offsets[i] || [0.0, 0.0, 0.0];
             modelViewMatrix = mult(base, translate(offset[0], offset[1], offset[2]));
             gl.uniform4fv(tintColorLoc, flatten(PLAYER_DIFFUSE[i] || PLAYER_DIFFUSE[0]));
-            if (hitFlashTimers && hitFlashTimers[i]) {
+            var isParrying = parryStates && parryStates[i] && parryStates[i].active;
+            var isFlashing = hitFlashTimers && hitFlashTimers[i];
+            if (isParrying) {
+                gl.uniform1f(useLightingLoc, 0.0);
+                gl.uniform4fv(flatColorLoc, flatten(vec4(0.0, 0.0, 0.0, 1.0)));
+            } else if (isFlashing) {
                 gl.uniform1f(useLightingLoc, 0.0);
                 gl.uniform4fv(flatColorLoc, flatten(vec4(1.0, 1.0, 1.0, 1.0)));
             }
             traverse(ID_Root, figures[i]);
-            if (hitFlashTimers && hitFlashTimers[i]) {
+            if (isParrying || isFlashing) {
                 gl.uniform1f(useLightingLoc, 1.0);
             }
         }
