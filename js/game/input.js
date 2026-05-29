@@ -27,11 +27,9 @@ var PARRY_WINDOW = 0.3;  // seconds the parry is active after pressing the key
 
 var COMBO_WINDOW = 50;  // ms – time after hit freeze to chain the next attack
 
-// Recovery time (seconds) added AFTER the attack animation finishes.
-// Total self-stun = animation_duration + recovery.
+// self stun = animation duration + recovery time
 var ATTACK_RECOVERY = { jab: 0.35, hi_kick: 0.4 };
 
-// Computes total self-stun: animation duration + recovery time.
 function getAttackStun(baseAttack) {
     var anim = ANIMS[baseAttack];
     var animDuration = anim ? (anim.frames.length - 1) / anim.fps : 0;
@@ -39,10 +37,6 @@ function getAttackStun(baseAttack) {
     return animDuration + recovery;
 }
 
-// ── Combo Tree ──────────────────────────────────────────────────────
-// Each node: { anim: "animation_name", next: { "input": node, ... } }
-// "next" maps the NEXT base-attack input to its follow-up node.
-// To add a new combo route, just add a branch in the tree.
 var COMBO_TREE = {
     "jab": {
         anim: "jab",
@@ -65,24 +59,20 @@ var COMBO_TREE = {
     }
 };
 
-// Returns true if figure f can combo into baseAttack right now.
 function canCombo(f, baseAttack) {
     var combo = comboStates[f];
     return combo.windowOpen && combo.node && combo.node.next[baseAttack];
 }
 
-// Returns the correct animation name, navigating the combo tree.
 function getComboAnim(f, baseAttack) {
     var combo = comboStates[f];
 
     if (canCombo(f, baseAttack)) {
-        // Follow the tree branch
         combo.node = combo.node.next[baseAttack];
         clearTimeout(combo.windowTimer);
         combo.windowOpen = false;
         return combo.node.anim;
     } else {
-        // Fresh attack — start at the tree root
         combo.node = COMBO_TREE[baseAttack] || null;
         combo.windowOpen = false;
         clearTimeout(combo.windowTimer);
@@ -90,8 +80,6 @@ function getComboAnim(f, baseAttack) {
     }
 }
 
-// Opens the combo window for figure f after a successful hit.
-// Only opens if the current tree node has at least one follow-up.
 function openComboWindow(f) {
     var combo = comboStates[f];
     if (!combo.node || !combo.node.next) { combo.node = null; return; }
@@ -147,7 +135,7 @@ function tryHit(attackerIdx, animName) {
     animStates[defenderIdx].blendT = 1;  // snap to hit pose instantly
 
     setPlayerHitUI(defenderIdx + 1, true);
-    var defIdx = defenderIdx;  // capture for closures
+    var defIdx = defenderIdx;
     var atkIdx = attackerIdx;
     if (HIT_FREEZE_ENABLED) {
         requestAnimationFrame(function () { hitFreeze = true; });
@@ -170,6 +158,7 @@ window.addEventListener("keydown", function (e) {
     keys[e.code] = true;
 
     if (!wasDown) {
+        if (e.code === "KeyR" && !game.running) { initAnimPlayer(); startGame(); return; }
         if (e.code === "KeyQ" && !stunTimers[0] && (!attackCooldown[0] || canCombo(0, "jab"))) { requestAnim(0, getComboAnim(0, "jab")); setTimeout(function () { tryHit(0, "jab"); }, ATTACK_DELAY.jab); attackCooldown[0] = getAttackStun("jab"); }
         if (e.code === "KeyE" && !stunTimers[0] && (!attackCooldown[0] || canCombo(0, "hi_kick"))) { requestAnim(0, getComboAnim(0, "hi_kick")); setTimeout(function () { tryHit(0, "hi_kick"); }, ATTACK_DELAY.hi_kick); attackCooldown[0] = getAttackStun("hi_kick"); }
         if (e.code === "KeyU" && !stunTimers[1] && (!attackCooldown[1] || canCombo(1, "jab"))) { requestAnim(1, getComboAnim(1, "jab")); setTimeout(function () { tryHit(1, "jab"); }, ATTACK_DELAY.jab); attackCooldown[1] = getAttackStun("jab"); }
@@ -183,11 +172,9 @@ window.addEventListener("keyup", function (e) {
     keys[e.code] = false;
 });
 
-// Called every frame from updateAnimation(dt) to process key input
 function processInput(dt) {
     if (!game || !game.running) return;
 
-    // decrement stun timers and reset UI when they expire
     for (var f = 0; f < numFigures; f++) {
         if (stunTimers[f] > 0) {
             stunTimers[f] = Math.max(0, stunTimers[f] - dt);

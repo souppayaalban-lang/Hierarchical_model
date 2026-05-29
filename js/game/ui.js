@@ -32,6 +32,20 @@ window.addEventListener('keyup', function (e) {
     }
 });
 
+function showGameOver(message, winner) {
+    var overlay = document.getElementById('game-over-overlay');
+    var text = document.getElementById('result-text');
+    if (!overlay || !text) return;
+    text.textContent = message;
+    text.className = winner === 1 ? 'p1-result' : winner === 2 ? 'p2-result' : '';
+    overlay.classList.remove('hidden');
+}
+
+function hideGameOver() {
+    var overlay = document.getElementById('game-over-overlay');
+    if (overlay) overlay.classList.add('hidden');
+}
+
 function updateHealthUI(player) {
     var id = player === 1 ? 'p1-health-fill' : 'p2-health-fill';
     var hp = player === 1 ? game.p1Health : game.p2Health;

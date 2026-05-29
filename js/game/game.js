@@ -1,11 +1,8 @@
 "use strict";
 
-// Default constants
 var ROUND_TIME = 99;
 var MAX_HEALTH = 100;
 
-
-// Game state
 var game = {
     p1Health: MAX_HEALTH,
     p2Health: MAX_HEALTH,
@@ -14,8 +11,8 @@ var game = {
     timerInterval: null,
 };
 
-// Lifecycle
 function startGame() {
+    hideGameOver();
     game.p1Health = MAX_HEALTH;
     game.p2Health = MAX_HEALTH;
     game.timeRemaining = ROUND_TIME;
@@ -33,9 +30,16 @@ function stopGame() {
     game.running = false;
     clearInterval(game.timerInterval);
     game.timerInterval = null;
+
+    var winner, message;
+    if (game.p1Health <= 0) { winner = 2; message = "PLAYER TWO WINS"; }
+    else if (game.p2Health <= 0) { winner = 1; message = "PLAYER ONE WINS"; }
+    else if (game.p1Health > game.p2Health) { winner = 1; message = "PLAYER ONE WINS"; }
+    else if (game.p2Health > game.p1Health) { winner = 2; message = "PLAYER TWO WINS"; }
+    else { winner = 0; message = "DRAW"; }
+    showGameOver(message, winner);
 }
 
-// Timer
 function tickTimer() {
     if (!game.running) return;
     game.timeRemaining = Math.max(0, game.timeRemaining - 1);
@@ -43,7 +47,6 @@ function tickTimer() {
     if (game.timeRemaining <= 0) stopGame();
 }
 
-// Health 
 function takeDamage(player, amount) {
     if (!game.running) return;
     if (player === 1) {
