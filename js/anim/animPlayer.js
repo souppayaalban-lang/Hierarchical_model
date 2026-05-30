@@ -1,31 +1,26 @@
 "use strict";
 
-// flips a p1 pose to p2: reverses facing, swaps left/right limbs.
-// lateral (z) angles negate on swap; forward (x) and twist (y) swap as-is.
+// Turns a pose to face the opposite direction (180° on Y).
+// Joint angles stay the same so both fighters keep the same stance
+// (both right-handed / left-handed) — no left↔right swap.
 function mirrorPose(t) {
     var m = t.slice();
-
-    m[1] = 360 - t[1];  // reverse facing direction
-
-    m[4] = -t[4];  // spine lateral
-    m[5] = -t[5];  // spine twist
-
-    // arms: rShoulder[10-12] + rElbow[13]  <->  lShoulder[14-16] + lElbow[17]
-    m[10] = -t[14]; m[11] = t[15]; m[12] = t[16]; m[13] = t[17];
-    m[14] = -t[10]; m[15] = t[11]; m[16] = t[12]; m[17] = t[13];
-
-    // legs: rHip[18-20] + rKnee[21]  <->  lHip[22-24] + lKnee[25]
-    m[18] = -t[22]; m[19] = t[23]; m[20] = t[24]; m[21] = t[25];
-    m[22] = -t[18]; m[23] = t[19]; m[24] = t[20]; m[25] = t[21];
-
+    m[1] = t[1] + 180;  // reverse facing direction
     return m;
 }
 
 // returns linear interpolation between pose a and pose b
+// root Y (index 1) uses shortest-path angular interpolation
 function lerpPose(a, b, t) {
     var out = new Array(a.length);
     for (var i = 0; i < a.length; i++) {
-        out[i] = a[i] + (b[i] - a[i]) * t;
+        if (i === 1) {
+            // Shortest-path angular lerp for root Y
+            var diff = ((b[i] - a[i]) % 360 + 540) % 360 - 180;
+            out[i] = a[i] + diff * t;
+        } else {
+            out[i] = a[i] + (b[i] - a[i]) * t;
+        }
     }
     return out;
 }
@@ -42,6 +37,12 @@ var figurePositions = [];
 var WALK_SPEED = 1.5;
 var X_MIN = -4.0;
 var X_MAX = 4.0;
+
+// facingRight[f]: true if figure f faces +X, false if facing -X
+var facingRight = [];
+// facingBlend[f]: 0 = fully facing right, 1 = fully facing left (smoothly interpolated)
+var facingBlend = [];
+var TURN_SPEED = 8.0;  // blend speed: full turn in ~0.125s
 
 // stunTimers[f] > 0: figure f was hit and cannot act
 var stunTimers = [];
@@ -64,6 +65,8 @@ function initAnimPlayer() {
     attackCooldown = [];
     comboStates = [];
     parryStates = [];
+    facingRight = [];
+    facingBlend = [];
     for (var f = 0; f < numFigures; f++) {
         figurePositions.push(root_offsets[f] ? root_offsets[f][0] : 0);
         animStates.push({
@@ -78,6 +81,8 @@ function initAnimPlayer() {
         hitFlashTimers.push(false);
         comboStates.push({ node: null, windowOpen: false, windowTimer: null });
         parryStates.push({ active: false, cooldown: 0, windowTimer: null });
+        facingRight.push(f === 0);  // P1 starts facing right, P2 facing left
+        facingBlend.push(f === 0 ? 0 : 1);  // match initial facing
     }
 }
 

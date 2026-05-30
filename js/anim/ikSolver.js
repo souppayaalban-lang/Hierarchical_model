@@ -121,6 +121,12 @@ function solveFootIK(pose, fIdx, ikConfig) {
     var tL = dL ? [dL.footW[0], GROUND_Y, dL.footW[2]] : null;
     var tR = dR ? [dR.footW[0], GROUND_Y, dR.footW[2]] : null;
 
+    // Position-based IK skip: if a foot is already above ground in FK,
+    // don't anchor it (e.g., during a jump or kick).
+    var IK_SKIP_THRESHOLD = 0.05;
+    if (dL && dL.footW[1] > GROUND_Y + IK_SKIP_THRESHOLD) { dL = null; tL = null; }
+    if (dR && dR.footW[1] > GROUND_Y + IK_SKIP_THRESHOLD) { dR = null; tR = null; }
+
     var pelAdj = 0;
     var entries = [];
     if (dL && tL) entries.push({ d: dL, t: tL });

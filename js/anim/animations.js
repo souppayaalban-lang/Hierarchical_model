@@ -69,7 +69,7 @@ var WALK_F2 = pose({
     pelvisY: -0.3
 });
 
-// Jab Gauche
+// Left Jab
 var JAB_F1 = pose({
     root: [0, 90, 0],
     spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
@@ -79,7 +79,7 @@ var JAB_F1 = pose({
     rHip: [0, 20, 0], rKnee: 0,
     pelvisY: -0.1
 });
-//Jab Droite
+// Right Jab
 var JAB_F2 = pose({
     root: [0, 90, 0],
     spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
@@ -92,23 +92,25 @@ var JAB_F2 = pose({
 
 // Final stance HighKick
 var HIGHKICK_F0 = pose({
-    root: [0, -20, 10],
-    spine: [0, 40, 20], torso: 30, head: [0, 0, 0],
+    root: [0, 170, -10],
+    spine: [0, -40, -20], torso: 30, head: [0, 0, 0],
     lShoulder: [20, -10, 0], lElbow: -150,
     rShoulder: [-20, -10, 0], rElbow: -120,
-    lHip: [130, 0, 0], lKnee: 0,
-    rHip: [0, 0, 30], rKnee: 0,
-    pelvisY: -0.02
+    lHip: [0, 0, -30], lKnee: 10,
+    rHip: [-110, 0, 0], rKnee: 0,
+    pelvisY: -0.05
 });
 var HIGHKICK_F1 = pose({
-    root: [0, -20, 5],
-    spine: [0, 40, 40], torso: 30, head: [0, 0, 0],
+    root: [0, 170, -10],
+    spine: [0, -40, -20], torso: 30, head: [0, 0, 0],
     lShoulder: [20, -10, 0], lElbow: -150,
     rShoulder: [-20, -10, 0], rElbow: -120,
-    lHip: [100, 0, 0], lKnee: 120,
-    rHip: [0, 0, 30], rKnee: 10,
-    pelvisY: -0.02
+    lHip: [0, 0, -30], lKnee: 10,
+    rHip: [-90, 0, 0], rKnee: 120,
+    pelvisY: -0.05
 });
+
+
 
 // Hit frame
 var HIT_F1 = pose({
@@ -170,6 +172,118 @@ function registerAnimations() {
         fps: 8,
         loop: false,
         interruptible: false,
+        ikGround: { LeftFoot: true, RightFoot: false }
+    };
+    ANIMS["reverse_highkick"] = {
+        frames: [IDLE_F0, REVERSEHIGHKICK_F0, REVERSEHIGHKICK_F1, REVERSEHIGHKICK_F2, REVERSEHIGHKICK_F3, REVERSEHIGHKICK_F4, REVERSEHIGHKICK_F5],
+        fps: 8,
+        loop: false,
+        interruptible: false,
+        ikGround: { LeftFoot: true, RightFoot: true }
+    };
+    ANIMS["low_highkick"] = {
+        frames: [IDLE_F0, LOWHIGHKICK_F1, LOWHIGHKICK_F2, LOWHIGHKICK_F1],
+        fps: 4,
+        loop: false,
+        interruptible: false,
+        ikGround: { LeftFoot: false, RightFoot: true }
+    };
+    ANIMS["test"] = {
+        frames: [IDLE_F0, LOWHIGHKICK_F1, LOWHIGHKICK_F2, LOWHIGHKICK_F1],
+        fps: 4,
+        loop: false,
+        interruptible: false,
         ikGround: { LeftFoot: false, RightFoot: true }
     };
 }
+
+var REVERSEHIGHKICK_F0 = pose({
+    root: [0, 135, 0],
+    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [-20, -10, 0], rElbow: -120,
+    lHip: [0, -20, 0], lKnee: 0,
+    rHip: [-30, -10, 0], rKnee: 50,
+    pelvisY: -0.1
+});
+
+var REVERSEHIGHKICK_F1 = pose({
+    root: [0, 180, 0],
+    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -120,
+    rShoulder: [-20, -10, 0], rElbow: -90,
+    lHip: [15, 0, 0], lKnee: 0,
+    rHip: [0, 0, 0], rKnee: 0,
+    pelvisY: -0.1
+});
+
+var REVERSEHIGHKICK_F2 = pose({
+    root: [0, 240, 0],
+    spine: [-10, 30, 0], torso: 40, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -30,
+    rShoulder: [-20, -10, 0], rElbow: -90,
+    lHip: [80, 0, 0], lKnee: 30,
+    rHip: [-5, 0, 0], rKnee: 30,
+    pelvisY: 0.1
+});
+
+var REVERSEHIGHKICK_F3 = pose({
+    root: [0, 360, 0],
+    spine: [-10, 60, 0], torso: 50, head: [0, 0, 0],
+    lShoulder: [60, -10, 0], lElbow: 0,
+    rShoulder: [-20, -10, 0], rElbow: -90,
+    lHip: [130, 0, 0], lKnee: 0,
+    rHip: [-5, 0, 0], rKnee: 30,
+    pelvisY: 0.3
+});
+
+var REVERSEHIGHKICK_F4 = pose({
+    root: [0, 405, 0],
+    spine: [-10, 30, 0], torso: 40, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -60,
+    rShoulder: [-20, -10, 0], rElbow: -90,
+    lHip: [110, 0, 0], lKnee: 30,
+    rHip: [-5, 0, 0], rKnee: 30,
+    pelvisY: 0.1
+});
+
+var REVERSEHIGHKICK_F5 = pose({
+    root: [0, 450, 0],
+    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [-20, -10, 0], rElbow: -120,
+    lHip: [0, 20, 0], lKnee: 0,
+    rHip: [0, -20, 0], rKnee: 0,
+    pelvisY: -0.1
+});
+
+var LOWHIGHKICK_F2 = pose({
+    root: [0, 0, 0],
+    spine: [-10, 90, 0], torso: 60, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [-20, -10, 0], rElbow: -120,
+    lHip: [150, 0, 0], lKnee: 0,
+    rHip: [-10, 0, 0], rKnee: 0,
+    pelvisY: -0.3
+});
+
+
+var LOWHIGHKICK_F1 = pose({
+    root: [0, 0, 0],
+    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [-20, -10, 0], rElbow: -120,
+    lHip: [0, 45, 0], lKnee: 60,
+    rHip: [15, 0, 0], rKnee: 0,
+    pelvisY: 0
+});
+
+var LOWHIGHKICK_F0 = pose({
+    root: [0, 0, 0],
+    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [-20, -10, 0], rElbow: -120,
+    lHip: [0, 0, 0], lKnee: 0,
+    rHip: [15, 0, 0], rKnee: 0,
+    pelvisY: 0
+});

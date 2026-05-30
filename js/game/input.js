@@ -11,14 +11,14 @@ var hitFreeze = false;
 // max distance (x axis) between attacker and defender for a hit to land
 var HIT_RANGE = 1.25;
 
-// damage values per attack type
-var ATTACK_DAMAGE = { jab: 8, hi_kick: 12 };
+// damage values per attack type (also checked by combo anim name)
+var ATTACK_DAMAGE = { jab: 8, hi_kick: 12, reverse_highkick: 15, low_highkick: 10 };
 
-// delay (ms) before the distance check fires
-var ATTACK_DELAY = { jab: 100, hi_kick: 250 };
+// delay (ms) before the distance check fires (also checked by combo anim name)
+var ATTACK_DELAY = { jab: 100, hi_kick: 250, reverse_highkick: 500, low_highkick: 500 };
 
 // stun duration in seconds applied to the defender on hit.
-var STUN_DURATION = 0.10;
+var STUN_DURATION = 0.01;
 var HIT_FREEZE_ENABLED = true;
 
 var PARRY_STUN = 2.0;
@@ -28,7 +28,7 @@ var PARRY_WINDOW = 0.3;  // seconds the parry is active after pressing the key
 var COMBO_WINDOW = 50;  // ms – time after hit freeze to chain the next attack
 
 // self stun = animation duration + recovery time
-var ATTACK_RECOVERY = { jab: 0.35, hi_kick: 0.4 };
+var ATTACK_RECOVERY = { jab: 0.35, hi_kick: 0.4, reverse_highkick: 0.3, low_highkick: 0.3 };
 
 function getAttackStun(baseAttack) {
     var anim = ANIMS[baseAttack];
@@ -43,18 +43,17 @@ var COMBO_TREE = {
         next: {
             "jab": {
                 anim: "jab_2", next: {
-                    "hi_kick": { anim: "hi_kick", next: {} },
+                    "hi_kick": { anim: "reverse_highkick", next: {} },
                     "jab": { anim: "hit", next: {} }
                 }
             },
-            "hi_kick": { anim: "hi_kick", next: {} }
+            "hi_kick": { anim: "low_highkick", next: {} }
         }
     },
     "hi_kick": {
         anim: "hi_kick",
         next: {
             "jab": { anim: "jab", next: {} },
-            "hi_kick": { anim: "hi_kick", next: {} }
         }
     }
 };
@@ -122,9 +121,8 @@ function tryHit(attackerIdx, animName) {
     }
 
     var distance = figurePositions[defenderIdx] - figurePositions[attackerIdx];
-    // P1 (idx 0) must hit someone to the right; P2 (idx 1) must hit someone to the left.
-    var facingRight = (attackerIdx === 0);
-    if (facingRight ? distance <= 0 : distance >= 0) return;
+    var isFacingRight = facingRight[attackerIdx];
+    if (isFacingRight ? distance <= 0 : distance >= 0) return;
     if (Math.abs(distance) > HIT_RANGE) return;
 
     takeDamage(defenderIdx + 1, ATTACK_DAMAGE[animName] || 8);
@@ -159,12 +157,13 @@ window.addEventListener("keydown", function (e) {
 
     if (!wasDown) {
         if (e.code === "KeyR" && !game.running) { initAnimPlayer(); startGame(); return; }
-        if (e.code === "KeyQ" && !stunTimers[0] && (!attackCooldown[0] || canCombo(0, "jab"))) { requestAnim(0, getComboAnim(0, "jab")); setTimeout(function () { tryHit(0, "jab"); }, ATTACK_DELAY.jab); attackCooldown[0] = getAttackStun("jab"); }
-        if (e.code === "KeyE" && !stunTimers[0] && (!attackCooldown[0] || canCombo(0, "hi_kick"))) { requestAnim(0, getComboAnim(0, "hi_kick")); setTimeout(function () { tryHit(0, "hi_kick"); }, ATTACK_DELAY.hi_kick); attackCooldown[0] = getAttackStun("hi_kick"); }
-        if (e.code === "KeyU" && !stunTimers[1] && (!attackCooldown[1] || canCombo(1, "jab"))) { requestAnim(1, getComboAnim(1, "jab")); setTimeout(function () { tryHit(1, "jab"); }, ATTACK_DELAY.jab); attackCooldown[1] = getAttackStun("jab"); }
-        if (e.code === "KeyO" && !stunTimers[1] && (!attackCooldown[1] || canCombo(1, "hi_kick"))) { requestAnim(1, getComboAnim(1, "hi_kick")); setTimeout(function () { tryHit(1, "hi_kick"); }, ATTACK_DELAY.hi_kick); attackCooldown[1] = getAttackStun("hi_kick"); }
+        if (e.code === "KeyQ" && !stunTimers[0] && (!attackCooldown[0] || canCombo(0, "jab"))) { var a = getComboAnim(0, "jab"); requestAnim(0, a); setTimeout(function () { tryHit(0, a); }, ATTACK_DELAY[a] || ATTACK_DELAY.jab); attackCooldown[0] = getAttackStun(a); }
+        if (e.code === "KeyE" && !stunTimers[0] && (!attackCooldown[0] || canCombo(0, "hi_kick"))) { var a = getComboAnim(0, "hi_kick"); requestAnim(0, a); setTimeout(function () { tryHit(0, a); }, ATTACK_DELAY[a] || ATTACK_DELAY.hi_kick); attackCooldown[0] = getAttackStun(a); }
+        if (e.code === "KeyU" && !stunTimers[1] && (!attackCooldown[1] || canCombo(1, "jab"))) { var a = getComboAnim(1, "jab"); requestAnim(1, a); setTimeout(function () { tryHit(1, a); }, ATTACK_DELAY[a] || ATTACK_DELAY.jab); attackCooldown[1] = getAttackStun(a); }
+        if (e.code === "KeyO" && !stunTimers[1] && (!attackCooldown[1] || canCombo(1, "hi_kick"))) { var a = getComboAnim(1, "hi_kick"); requestAnim(1, a); setTimeout(function () { tryHit(1, a); }, ATTACK_DELAY[a] || ATTACK_DELAY.hi_kick); attackCooldown[1] = getAttackStun(a); }
         if (e.code === "KeyS") activateParry(0);
         if (e.code === "KeyK") activateParry(1);
+        if (e.code === "Digit0") { requestAnim(0, "test"); }
     }
 });
 
@@ -174,6 +173,12 @@ window.addEventListener("keyup", function (e) {
 
 function processInput(dt) {
     if (!game || !game.running) return;
+
+    // Update facing: each player faces the opponent
+    if (numFigures > 1) {
+        facingRight[0] = figurePositions[0] < figurePositions[1];
+        facingRight[1] = figurePositions[1] < figurePositions[0];
+    }
 
     for (var f = 0; f < numFigures; f++) {
         if (stunTimers[f] > 0) {
@@ -189,33 +194,33 @@ function processInput(dt) {
         setParryCooldownUI(f + 1, parryStates[f].cooldown > 0);
     }
 
-    // P1: A = move left, D = move right (blocked while stunned)
-    if (!stunTimers[0]) {
+    // P1 movement
+    if (!stunTimers[0] && !attackCooldown[0] && !parryStates[0].active) {
         var p1Left = !!keys["KeyA"];
         var p1Right = !!keys["KeyD"];
 
         if (p1Right && !p1Left) {
             figurePositions[0] = Math.min(X_MAX, figurePositions[0] + WALK_SPEED * dt);
-            requestAnim(0, "walk_fwd");
+            requestAnim(0, facingRight[0] ? "walk_fwd" : "walk_back");
         } else if (p1Left && !p1Right) {
             figurePositions[0] = Math.max(X_MIN, figurePositions[0] - WALK_SPEED * dt);
-            requestAnim(0, "walk_back");
+            requestAnim(0, facingRight[0] ? "walk_back" : "walk_fwd");
         } else {
             requestAnim(0, "idle");
         }
     }
 
-    // P2: J = move left, L = move right (P2 faces -X so left = forward)
-    if (!stunTimers[1]) {
+    // P2 movement
+    if (!stunTimers[1] && !attackCooldown[1] && !parryStates[1].active) {
         var p2Left = !!keys["KeyJ"];
         var p2Right = !!keys["KeyL"];
 
         if (p2Left && !p2Right) {
             figurePositions[1] = Math.max(X_MIN, figurePositions[1] - WALK_SPEED * dt);
-            requestAnim(1, "walk_fwd");
+            requestAnim(1, facingRight[1] ? "walk_back" : "walk_fwd");
         } else if (p2Right && !p2Left) {
             figurePositions[1] = Math.min(X_MAX, figurePositions[1] + WALK_SPEED * dt);
-            requestAnim(1, "walk_back");
+            requestAnim(1, facingRight[1] ? "walk_fwd" : "walk_back");
         } else {
             requestAnim(1, "idle");
         }

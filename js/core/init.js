@@ -506,10 +506,23 @@ function updateAnimation(dt) {
         var anim = ANIMS[animName];
         var ikCfg = (anim && anim.ikGround) ? anim.ikGround : null;
 
-        if (f === 1) {
+        // Smooth facing blend: 0 = facing right, 1 = facing left
+        var facingTarget = facingRight[f] ? 0 : 1;
+        if (facingBlend[f] < facingTarget) {
+            facingBlend[f] = Math.min(facingTarget, facingBlend[f] + TURN_SPEED * dt);
+        } else if (facingBlend[f] > facingTarget) {
+            facingBlend[f] = Math.max(facingTarget, facingBlend[f] - TURN_SPEED * dt);
+        }
+
+        var fb = facingBlend[f];
+        if (fb > 0.999) {
+            // Fully facing left — apply full mirror
             pose = mirrorPose(pose);
-            // mirrorPose intervertit gauche/droite → faire de même pour ikGround
-            if (ikCfg) ikCfg = { LeftFoot: ikCfg.RightFoot, RightFoot: ikCfg.LeftFoot };
+        } else if (fb > 0.001) {
+            // Mid-turn — blend between normal and mirrored pose
+            var mirrored = mirrorPose(pose);
+            pose = lerpPose(pose, mirrored, fb);
+            ikCfg = { LeftFoot: true, RightFoot: true };  // ground both feet during turn
         }
 
         pose = solveFootIK(pose, f, ikCfg);
