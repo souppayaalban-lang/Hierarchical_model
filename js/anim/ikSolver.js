@@ -1,11 +1,12 @@
 "use strict";
 
-var IK_GROUND_DEFAULT = { LeftFoot: true, RightFoot: true };
+var IK_GROUND_DEFAULT = { LeftFoot: true, RightFoot: true };    // Default value if not initialized in Animation.js
 
 var IK_L1 = 0;          // Leg length
 var IK_L2 = 0;          // Shin length
 var IK_MAX_REACH = 0;   // Max reach
 
+// Retrieve Leg, Shin and Max Reach values
 function _ikEnsureInit() {
     if (IK_L1 > 0) return;
     IK_L1 = upper_leg_length - 2 * limb_radius;
@@ -13,6 +14,7 @@ function _ikEnsureInit() {
     IK_MAX_REACH = IK_L1 + IK_L2;
 }
 
+// Transpose the rotation matrix
 function _ikInvRotVec(m, v) {
     return [
         m[0][0] * v[0] + m[1][0] * v[1] + m[2][0] * v[2],
@@ -21,6 +23,9 @@ function _ikInvRotVec(m, v) {
     ];
 }
 
+// Pose = Hierarchical Model Array
+// fIdx = Figure Index
+// ikConfig = { LeftFoot: true, RightFoot: true }
 function solveFootIK(pose, fIdx, ikConfig) {
     _ikEnsureInit();
 
@@ -30,8 +35,9 @@ function solveFootIK(pose, fIdx, ikConfig) {
     if (!doL && !doR) return pose;
 
     var rootOff = root_offsets[fIdx] || [0, GROUND_Y + LEG_HEIGHT, 0];
-    var pelY = pose[26] || 0;
+    var pelY = pose[26] || 0;   // Vertical offset (Pelvis Y)
 
+    // Build Root back into World Matrix
     function buildWRoot(pY) {
         var m = mat4();
         if (pY !== 0) m = mult(m, translate(0, pY, 0));
@@ -40,6 +46,7 @@ function solveFootIK(pose, fIdx, ikConfig) {
         m = mult(m, rotate(pose[2], 0, 0, 1));
         return mult(translate(rootOff[0], rootOff[1], rootOff[2]), m);
     }
+
 
     function legData(wRoot, side) {
         var isL = (side === 0);

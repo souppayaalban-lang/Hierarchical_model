@@ -44,6 +44,12 @@ var facingRight = [];
 var facingBlend = [];
 var TURN_SPEED = 8.0;  // blend speed: full turn in ~0.125s
 
+// Jump state
+var jumpVelocity = [];  // current Y velocity per figure
+var JUMP_FORCE = 9.0;   // initial upward velocity
+var GRAVITY = 18.0;     // gravity acceleration
+var LANDING_RECOVERY = 0.25;  // seconds of self-stun after landing
+
 // stunTimers[f] > 0: figure f was hit and cannot act
 var stunTimers = [];
 
@@ -83,6 +89,7 @@ function initAnimPlayer() {
         parryStates.push({ active: false, cooldown: 0, windowTimer: null });
         facingRight.push(f === 0);  // P1 starts facing right, P2 facing left
         facingBlend.push(f === 0 ? 0 : 1);  // match initial facing
+        jumpVelocity.push(0);
     }
 }
 

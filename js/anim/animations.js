@@ -189,13 +189,44 @@ function registerAnimations() {
         ikGround: { LeftFoot: false, RightFoot: true }
     };
     ANIMS["test"] = {
-        frames: [IDLE_F0, LOWHIGHKICK_F1, LOWHIGHKICK_F2, LOWHIGHKICK_F1],
-        fps: 4,
+        frames: [ELBOWHIT_F0, ELBOWHIT_F1, ELBOWHIT_F2],
+        fps: 1,
+        loop: true,
+        interruptible: false,
+        ikGround: { LeftFoot: true, RightFoot: true }
+    };
+    ANIMS["elbow_hit"] = {
+        frames: [ELBOWHIT_F0, ELBOWHIT_F1],
+        fps: 8,
         loop: false,
         interruptible: false,
-        ikGround: { LeftFoot: false, RightFoot: true }
+        ikGround: { LeftFoot: true, RightFoot: true }
+    };
+    ANIMS["elbow_hit_2"] = {
+        frames: [ELBOWHIT_F1, ELBOWHIT_F2],
+        fps: 8,
+        loop: false,
+        interruptible: false,
+        ikGround: { LeftFoot: true, RightFoot: true }
+    };
+    ANIMS["jump"] = {
+        frames: [JUMP_F0],
+        fps: 1,
+        loop: true,
+        interruptible: true,
+        ikGround: { LeftFoot: false, RightFoot: false }
     };
 }
+
+var JUMP_F0 = pose({
+    root: [0, 90, 0],
+    spine: [0, 0, 0], torso: 10, head: [0, 0, 0],
+    lShoulder: [130, 0, 0], lElbow: 0,
+    rShoulder: [-130, 0, 0], rElbow: 0,
+    lHip: [0, -10, 0], lKnee: 10,
+    rHip: [0, 10, 0], rKnee: 10,
+    pelvisY: 0.2
+});
 
 var REVERSEHIGHKICK_F0 = pose({
     root: [0, 135, 0],
@@ -286,4 +317,33 @@ var LOWHIGHKICK_F0 = pose({
     lHip: [0, 0, 0], lKnee: 0,
     rHip: [15, 0, 0], rKnee: 0,
     pelvisY: 0
+});
+
+var ELBOWHIT_F0 = pose({
+    root: [0, 90, 0],
+    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [-90, -10, 0], rElbow: -120,
+    lHip: [0, -20, 0], lKnee: 0,
+    rHip: [0, 20, 0], rKnee: 0,
+    pelvisY: -0.1
+});
+var ELBOWHIT_F1 = pose({
+    root: [0, 90, 0],
+    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [-90, -100, 0], rElbow: -120,
+    lHip: [0, -20, 0], lKnee: 0,
+    rHip: [0, 20, 0], rKnee: 0,
+    pelvisY: -0.1
+});
+
+var ELBOWHIT_F2 = pose({
+    root: [0, 90, 0],
+    spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],
+    lShoulder: [20, -10, 0], lElbow: -150,
+    rShoulder: [-90, -50, 0], rElbow: 0,
+    lHip: [0, -20, 0], lKnee: 0,
+    rHip: [0, 20, 0], rKnee: 0,
+    pelvisY: -0.1
 });
