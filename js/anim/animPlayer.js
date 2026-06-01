@@ -1,8 +1,6 @@
 "use strict";
 
-// Turns a pose to face the opposite direction (180° on Y).
-// Joint angles stay the same so both fighters keep the same stance
-// (both right-handed / left-handed) — no left↔right swap.
+// turns a pose to face the opposite direction (180° on Y).
 function mirrorPose(t) {
     var m = t.slice();
     m[1] = t[1] + 180;  // reverse facing direction

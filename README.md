@@ -2,7 +2,7 @@
   <img src="css/assets/kinemastick-fighter-X.png" alt="Kinemastick Fighter X" width="480">
 </p>
 
-<p align="center"><em>2-player WebGL fighting game built on a hierarchical skeleton model</em></p>
+<p align="center"><em>2-player WebGL fighting game with hierarchical stickmen</em></p>
 
 ---
 
@@ -33,6 +33,13 @@ js/
   game/     # game state, input, ui
   anim/     # animations, player, ik solver
 css/        # styles and assets
-html/       # entry point
+html/       # html/index.html
 common/     # webgl utilities (MV.js, initShaders)
 ```
+
+## team 9
+
+| name | contributions |
+|---|---|
+| CAPBLANCQ, Sylvain Titouan | Gameplay mechanics, Animation player, UI/Assets |
+| SOUPPAYA, Alban | Hierarchical model, Animation poses, IK system |

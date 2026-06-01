@@ -47,7 +47,7 @@ var IDLE_F1 = pose({
     pelvisY: -0.3
 });
 
-// Forward SideStep
+// Forward sidestep
 var WALK_F1 = pose({
     root: [0, 90, 0],
     spine: [10, 0, 0], torso: 40, head: [0, 0, 0],
@@ -58,7 +58,7 @@ var WALK_F1 = pose({
     pelvisY: -0.5
 });
 
-// Backward SideStep
+// Backward sidestep
 var WALK_F2 = pose({
     root: [0, 90, 0],
     spine: [-10, 0, 0], torso: 30, head: [0, 0, 0],

@@ -26,7 +26,7 @@ var PARRY_STUN = 2.0;
 var PARRY_COOLDOWN = 1.0;
 var PARRY_WINDOW = 0.3;  // seconds the parry is active after pressing the key
 
-var COMBO_WINDOW = 500;  // ms – time after hit freeze to chain the next attack
+var COMBO_WINDOW = 500;  // ms after hit freeze to chain the next attack
 
 // self stun = animation duration + recovery time
 var ATTACK_RECOVERY = { jab: 0.35, hi_kick: 0.4, reverse_highkick: 0.3, low_highkick: 0.3 };
@@ -128,7 +128,7 @@ function tryHit(attackerIdx, animName) {
     if (isFacingRight ? distance <= 0 : distance >= 0) return;
     if (Math.abs(distance) > HIT_RANGE) return;
 
-    // Vertical range check — miss if too far apart on Y
+    // will miss if too far apart on Y
     var heightDiff = Math.abs(root_offsets[attackerIdx][1] - root_offsets[defenderIdx][1]);
     if (heightDiff > HIT_HEIGHT_RANGE) return;
 
