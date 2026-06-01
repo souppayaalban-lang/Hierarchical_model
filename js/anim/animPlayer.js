@@ -35,8 +35,8 @@ var BLEND_DURATION = 0.12;
 // figurePositions[f] is the world X of figure f, written to root_offsets each frame
 var figurePositions = [];
 var WALK_SPEED = 1.5;
-var X_MIN = -4.0;
-var X_MAX = 4.0;
+var X_MIN = -5.5;
+var X_MAX = 5.5;
 
 // facingRight[f]: true if figure f faces +X, false if facing -X
 var facingRight = [];
