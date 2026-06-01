@@ -23,10 +23,10 @@ var STUN_DURATION = 0.30;  // must be >= hit freeze (250ms)
 var HIT_FREEZE_ENABLED = true;
 
 var PARRY_STUN = 2.0;
-var PARRY_COOLDOWN = 5.0;
+var PARRY_COOLDOWN = 1.0;
 var PARRY_WINDOW = 0.3;  // seconds the parry is active after pressing the key
 
-var COMBO_WINDOW = 50;  // ms – time after hit freeze to chain the next attack
+var COMBO_WINDOW = 500;  // ms – time after hit freeze to chain the next attack
 
 // self stun = animation duration + recovery time
 var ATTACK_RECOVERY = { jab: 0.35, hi_kick: 0.4, reverse_highkick: 0.3, low_highkick: 0.3 };
@@ -45,9 +45,11 @@ var COMBO_TREE = {
             "jab": {
                 anim: "jab_2", next: {
                     "hi_kick": { anim: "reverse_highkick", next: {} },
-                    "jab": { anim: "elbow_hit", next: {
-                        "jab": { anim: "elbow_hit_2", next: {} }
-                    } }
+                    "jab": {
+                        anim: "elbow_hit", next: {
+                            "jab": { anim: "elbow_hit_2", next: {} }
+                        }
+                    }
                 }
             },
             "hi_kick": { anim: "low_highkick", next: {} }
