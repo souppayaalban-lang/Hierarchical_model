@@ -1,15 +1,17 @@
 "use strict";
 
 var KEY_MAP = {
-    // P1: A/D move, Q/E attack, S parry
+    // P1: A/D move, W jump, Q/E attack, S parry
     'KeyA': 'p1-key-a',
     'KeyD': 'p1-key-d',
+    'KeyW': 'p1-key-w',
     'KeyQ': 'p1-key-q',
     'KeyE': 'p1-key-e',
     'KeyS': 'p1-key-s',
-    // P2: J/L move, U/O attack, K parry
+    // P2: J/L move, I jump, U/O attack, K parry
     'KeyJ': 'p2-key-j',
     'KeyL': 'p2-key-l',
+    'KeyI': 'p2-key-i',
     'KeyU': 'p2-key-u',
     'KeyO': 'p2-key-o',
     'KeyK': 'p2-key-k',

@@ -134,6 +134,10 @@ body {
     transform: scaleX(-1);
 }
 
+.key-icon.flip-n {
+    transform: rotate(-90deg);
+}
+
 .p1-key {
     border-color: var(--p1-color);
 }
