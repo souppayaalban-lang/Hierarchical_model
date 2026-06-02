@@ -443,9 +443,9 @@ function initNodes(id, figure, theta) {
             break;
         case ID_LeftHip:
             m = translate(-hip_offset_x, 0, 0);
-            m = mult(m, rotate(theta[18], 0, 0, 1));    // Elevation latérale du bras
-            m = mult(m, rotate(theta[19], 1, 0, 0));    // Elevation du bras vers l'avant-arrière
-            m = mult(m, rotate(theta[20], 0, 1, 0));    // Torsion
+            m = mult(m, rotate(theta[18], 0, 0, 1));
+            m = mult(m, rotate(theta[19], 1, 0, 0));
+            m = mult(m, rotate(theta[20], 0, 1, 0));
             figure[ID_LeftHip] = createNode(m, leftHip, ID_RightHip, ID_LeftKnee);
             break;
         case ID_LeftKnee:
@@ -455,9 +455,9 @@ function initNodes(id, figure, theta) {
             break;
         case ID_RightHip:
             m = translate(hip_offset_x, 0, 0);
-            m = mult(m, rotate(theta[22], 0, 0, 1));    // Elevation latérale du bras
-            m = mult(m, rotate(theta[23], 1, 0, 0));    // Elevation du bras vers l'avant-arrière
-            m = mult(m, rotate(theta[24], 0, 1, 0));    // Torsion
+            m = mult(m, rotate(theta[22], 0, 0, 1));
+            m = mult(m, rotate(theta[23], 1, 0, 0));
+            m = mult(m, rotate(theta[24], 0, 1, 0));
             figure[ID_RightHip] = createNode(m, rightHip, null, ID_RightKnee);
             break;
         case ID_RightKnee:
@@ -478,7 +478,6 @@ function initNodes(id, figure, theta) {
     }
 }
 
-// Tick all figures: advance state machine, compute pose, rebuild skeleton
 function clampPoseToGround(f, pose) {
     if (!pose) return pose;
 
