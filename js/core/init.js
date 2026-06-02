@@ -200,7 +200,7 @@ function initBackground() {
 function drawBackground() {
     gl.uniform1f(useLightingLoc, 0.0);
 
-    // 2D Grid — identity modelView so it never moves with the camera
+    // 2D Grid
     gl.depthMask(false);
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(mat4()));
     gl.uniform4fv(flatColorLoc, flatten(vec4(0.36, 0.36, 0.36, 1.0)));
@@ -208,7 +208,7 @@ function drawBackground() {
     gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.LINES, 0, bgGridCount);
 
-    // 3D Ground — follows the camera, writes depth so figures can occlude it
+    // 3D Ground
     gl.depthMask(true);
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
     gl.uniform4fv(flatColorLoc, flatten(vec4(0.16, 0.16, 0.16, 1.0)));
@@ -216,7 +216,7 @@ function drawBackground() {
     gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, bgGroundCount);
 
-    // 3D axis lines — red, drawn on top of ground
+    // Red line
     gl.uniform4fv(flatColorLoc, flatten(vec4(1.0, 0.0, 0.0, 1.0)));
     gl.bindBuffer(gl.ARRAY_BUFFER, bgAxisBuffer);
     gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
@@ -516,10 +516,10 @@ function updateAnimation(dt) {
 
         var fb = facingBlend[f];
         if (fb > 0.999) {
-            // Fully facing left — apply full mirror
+            // apply mirror if fully facing left
             pose = mirrorPose(pose);
         } else if (fb > 0.001) {
-            // Mid-turn — blend between normal and mirrored pose
+            // blend between normal and mirrored pose
             var mirrored = mirrorPose(pose);
             pose = lerpPose(pose, mirrored, fb);
             ikCfg = { LeftFoot: true, RightFoot: true };  // ground both feet during turn
